@@ -1,0 +1,1278 @@
+<title>Maths 4e</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+/* Layout : cahier Seyès — sommaire en marge à gauche, page de cours à droite avec la ligne de marge rouge */
+:root{
+  --paper:#f7f9fd; --surface:#ffffff; --ink:#17203a; --muted:#59627a; --line:#dbe2ef; --grid:#e3eaf7;
+  --accent:#2545c4; --accent-ink:#ffffff; --accent-soft:#e7ecfc; --margin:#d9587a;
+  --hl:#fff0a0; --hl-ink:#4d3f00;
+  --ok:#17784a; --ok-soft:#e1f3e8; --bad:#b3343e; --bad-soft:#fbe6e7; --warn:#8a5a00; --warn-soft:#fdf1d8;
+  --t-nombres:#2545c4; --t-donnees:#16786a; --t-grandeurs:#a35e08; --t-geo:#7a3db6;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-math:"STIX Two Text", "Cambria Math", "Times New Roman", serif;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --paper:#10141e; --surface:#171c28; --ink:#e6eaf4; --muted:#9ba4b9; --line:#2a3245; --grid:#1a2131;
+  --accent:#8ea4ff; --accent-ink:#0f1430; --accent-soft:#1d2647; --margin:#e57592;
+  --hl:#4f4512; --hl-ink:#fff2b5;
+  --ok:#5fd29a; --ok-soft:#132e20; --bad:#ff8b93; --bad-soft:#3a1a1e; --warn:#f2c066; --warn-soft:#352a12;
+  --t-nombres:#8ea4ff; --t-donnees:#5cc8b4; --t-grandeurs:#e8a64a; --t-geo:#c49bf0;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --paper:#10141e; --surface:#171c28; --ink:#e6eaf4; --muted:#9ba4b9; --line:#2a3245; --grid:#1a2131;
+  --accent:#8ea4ff; --accent-ink:#0f1430; --accent-soft:#1d2647; --margin:#e57592;
+  --hl:#4f4512; --hl-ink:#fff2b5;
+  --ok:#5fd29a; --ok-soft:#132e20; --bad:#ff8b93; --bad-soft:#3a1a1e; --warn:#f2c066; --warn-soft:#352a12;
+  --t-nombres:#8ea4ff; --t-donnees:#5cc8b4; --t-grandeurs:#e8a64a; --t-geo:#c49bf0;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6}
+h1,h2,h3,h4{font-family:var(--f-display);line-height:1.15;text-wrap:balance;margin:0}
+a{color:var(--accent)}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.m{font-family:var(--f-math);font-size:1.08em;white-space:nowrap}
+.m i,.var{font-style:italic}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-family:var(--f-math);line-height:1.1;margin:0 .12em;font-size:.95em}
+.fr>span:first-child{border-bottom:1.5px solid currentColor;padding:0 .2em}
+.fr>span:last-child{padding:0 .2em}
+sup{font-size:.7em}
+
+/* ---------- Structure ---------- */
+.app{display:grid;grid-template-columns:290px minmax(0,1fr);min-height:100vh}
+.side{background:var(--surface);border-right:1px solid var(--line);padding-block:20px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:16px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.brand{display:flex;align-items:baseline;gap:8px;text-decoration:none;color:var(--ink);margin-bottom:18px}
+.brand b{font-family:var(--f-display);font-weight:800;font-size:1.6rem;letter-spacing:-.02em}
+.brand span{font-size:.8rem;color:var(--muted)}
+.side h4{font-family:var(--f-body);font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:18px 0 6px;display:flex;align-items:center;gap:8px}
+.side h4::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--tc)}
+.nav a{display:grid;grid-template-columns:24px 1fr auto;gap:8px;align-items:center;padding:6px 8px;border-radius:8px;text-decoration:none;color:var(--ink);font-size:.93rem;line-height:1.3}
+.nav a:hover{background:var(--accent-soft)}
+.nav a.on{background:var(--accent-soft);font-weight:700}
+.nav .n{font-family:var(--f-math);color:var(--muted);font-variant-numeric:tabular-nums;text-align:right}
+.nav .pct{font-size:.72rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.nav .pct.full{color:var(--ok);font-weight:700}
+.main{min-width:0;padding-block:28px 64px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+.wrap{max-width:860px;margin:0 auto}
+.topbar{display:none}
+
+@media (max-width:880px){
+  .app{grid-template-columns:1fr}
+  .side{position:fixed;inset:0 auto 0 0;width:min(320px,88vw);z-index:30;transform:translateX(-105%);transition:transform .25s ease;padding-top:calc(20px + env(safe-area-inset-top, 0px));box-shadow:0 0 40px rgba(0,0,0,.25)}
+  .side.open{transform:none}
+  .scrim{position:fixed;inset:0;background:rgba(10,14,25,.45);z-index:25}
+  .topbar{display:flex;position:sticky;top:env(safe-area-inset-top, 0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line);padding-block:10px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));align-items:center;gap:12px}
+  body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top, 0px);z-index:10;background:var(--surface)}
+  .topbar b{font-family:var(--f-display);font-weight:800;font-size:1.2rem}
+  .main{padding-block:20px 48px}
+}
+.menu-btn{border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:6px 12px;font-weight:700}
+
+/* ---------- Accueil ---------- */
+.hero{position:relative;border-radius:14px;padding:32px 28px;background:
+  linear-gradient(var(--grid) 1px,transparent 1px) 0 0/100% 32px,
+  linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/32px 100%, var(--surface);border:1px solid var(--line);overflow:hidden}
+.hero::before{content:"";position:absolute;top:0;bottom:0;left:64px;width:2px;background:var(--margin);opacity:.7}
+.hero>*{position:relative;margin-left:56px}
+.hero .eyebrow{font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.hero h1{font-size:clamp(2.2rem,6vw,3.6rem);font-weight:800;letter-spacing:-.03em;margin:6px 0 10px}
+.hero h1 em{font-style:normal;background:linear-gradient(transparent 58%,var(--hl) 58%);padding:0 .1em}
+.hero p{max-width:58ch;margin:0;color:var(--muted)}
+.steps{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.steps span{font-size:.82rem;border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:3px 12px}
+.overall{display:flex;align-items:center;gap:14px;margin-top:20px;flex-wrap:wrap}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden;flex:1;min-width:120px}
+.bar i{display:block;height:100%;background:var(--ok);border-radius:99px;transition:width .4s}
+.theme-sec{margin-top:34px}
+.theme-sec h2{font-size:1.25rem;display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.theme-sec h2::before{content:"";width:12px;height:12px;border-radius:3px;background:var(--tc)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.card{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;transition:border-color .15s, transform .15s}
+.card:hover{border-color:var(--tc);transform:translateY(-2px)}
+.card .num{font-family:var(--f-math);font-size:.9rem;color:var(--tc)}
+.card h3{font-size:1.08rem}
+.card p{margin:0;font-size:.88rem;color:var(--muted);flex:1}
+.card .meta{display:flex;align-items:center;gap:10px;font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.reset{margin-top:40px;font-size:.85rem;color:var(--muted);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.linkbtn{background:none;border:none;color:var(--muted);text-decoration:underline;padding:0}
+.dangerbtn{background:var(--bad);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-weight:700}
+
+/* ---------- Chapitre ---------- */
+.ch-head{display:flex;flex-direction:column;gap:6px;margin-bottom:18px}
+.chip{align-self:flex-start;font-size:.74rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--tc);border:1px solid var(--tc);border-radius:999px;padding:2px 10px}
+.ch-head h1{font-size:clamp(1.8rem,4.5vw,2.6rem);font-weight:800;letter-spacing:-.02em}
+.ch-head .sub{color:var(--muted);margin:0}
+.ch-head .overall{margin-top:4px}
+.tabs{display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--line);margin-bottom:24px;scrollbar-width:none}
+.tabs a{flex:none;text-decoration:none;color:var(--muted);padding:10px 14px;border-bottom:3px solid transparent;font-weight:700;font-size:.93rem;display:flex;gap:8px;align-items:center}
+.tabs a:hover{color:var(--ink)}
+.tabs a.on{color:var(--ink);border-bottom-color:var(--accent)}
+.tabs .badge{font-size:.7rem;font-variant-numeric:tabular-nums;background:var(--line);color:var(--ink);border-radius:99px;padding:0 7px;font-weight:700}
+.tabs .badge.full{background:var(--ok-soft);color:var(--ok)}
+
+/* Cours : page de cahier avec marge */
+.lesson{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);position:relative;padding:28px 28px 28px 56px}
+.lesson::before{content:"";position:absolute;top:0;bottom:0;left:34px;width:2px;background:var(--margin);opacity:.55}
+.lesson section+section{margin-top:30px}
+.lesson h3{font-size:1.28rem;margin-bottom:10px;display:flex;gap:10px;align-items:baseline}
+.lesson h3 .k{font-family:var(--f-math);color:var(--margin);font-weight:600}
+.lesson p{margin:.5em 0;max-width:68ch}
+.lesson ul{margin:.4em 0;padding-left:1.2em}
+.box{border-radius:8px;padding:12px 16px;margin:12px 0;border:1px solid var(--line)}
+.box>b:first-child{display:block;font-size:.74rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.box.def{background:var(--hl);color:var(--hl-ink);border-color:transparent}
+.box.prop{background:var(--accent-soft);border-color:transparent}
+.box.prop>b:first-child{color:var(--accent)}
+.box.ex{background:var(--paper)}
+.box.ex>b:first-child{color:var(--muted)}
+.box.warn{background:var(--warn-soft);border-color:transparent}
+.box.warn>b:first-child{color:var(--warn)}
+.calc{font-family:var(--f-math);font-size:1.06rem;line-height:1.9}
+.figure{display:flex;justify-content:center;margin:14px 0;overflow-x:auto}
+.figure svg{max-width:100%;height:auto}
+.figure .s{stroke:var(--ink);fill:none;stroke-width:2}
+.figure .h{stroke:var(--accent);fill:none;stroke-width:3}
+.figure .t{fill:var(--ink);font-family:var(--f-math);font-size:16px}
+.figure .ta{fill:var(--accent);font-family:var(--f-math);font-size:15px}
+.tbl{overflow-x:auto;margin:10px 0}
+.tbl table{border-collapse:collapse;font-variant-numeric:tabular-nums}
+.tbl td,.tbl th{border:1px solid var(--line);padding:4px 12px;text-align:center}
+.tbl th{background:var(--paper);font-weight:700}
+
+/* Définitions */
+.defs-tools{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.defs-tools p{margin:0;color:var(--muted);font-size:.92rem}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 14px;font-weight:700;font-size:.9rem}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.defs{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.dcard{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.dcard .term{font-family:var(--f-display);font-weight:800;font-size:1.12rem}
+.dcard .hint{font-size:.8rem;color:var(--muted)}
+.dcard .body{display:none}
+.dcard.show .body{display:block}
+.dcard.show .hint{display:none}
+.dcard.show{border-color:var(--hl-ink);background:linear-gradient(var(--surface),var(--surface)) padding-box}
+.dcard .body p{margin:0}
+.dcard .body .e{margin-top:8px;font-size:.88rem;color:var(--muted)}
+
+/* QCM & exercices */
+.list{display:flex;flex-direction:column;gap:16px}
+.item{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;min-width:0}
+.item .lab{font-size:.74rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:700;display:flex;justify-content:space-between;gap:8px}
+.item .lab .st{color:var(--ok)}
+.item h3{font-size:1.1rem;margin:4px 0 6px}
+.item .q{margin:6px 0 12px}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
+.opt{text-align:left;border:1.5px solid var(--line);background:var(--paper);border-radius:8px;padding:10px 14px;display:flex;gap:10px;align-items:center}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt .L{font-weight:700;color:var(--muted);font-size:.85rem}
+.opt:disabled{cursor:default}
+.opt.good{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.fb{margin-top:10px;border-radius:8px;padding:10px 14px;font-size:.94rem}
+.fb.ok{background:var(--ok-soft);color:var(--ok)}
+.fb.bad{background:var(--bad-soft);color:var(--bad)}
+.fb.warn,.fb.err{background:var(--warn-soft);color:var(--warn)}
+.fb .ink{color:var(--ink)}
+.parts{display:flex;flex-direction:column;gap:12px}
+.part{display:flex;flex-direction:column;gap:6px}
+.part .pl{font-weight:700}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row input{font:inherit;font-family:var(--f-math);font-size:1.08rem;min-width:0;width:min(260px,100%);padding:7px 12px;border:1.5px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink)}
+.row input:focus{border-color:var(--accent);outline:none}
+.row input.ok{border-color:var(--ok);background:var(--ok-soft)}
+.row input.bad{border-color:var(--bad)}
+.row .unit{color:var(--muted)}
+.keys{display:flex;gap:4px}
+.keys button{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:2px 10px;font-family:var(--f-math);font-size:1rem}
+.pfb{font-size:.9rem}
+.pfb.ok{color:var(--ok)} .pfb.bad{color:var(--bad)} .pfb.warn,.pfb.err{color:var(--warn)}
+.aids{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.reveal{margin-top:12px;border-left:3px solid var(--accent);padding:6px 0 6px 14px}
+.reveal.hint{border-left-color:var(--t-grandeurs)}
+.reveal>b:first-child{display:block;font-size:.74rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.note{font-size:.88rem;color:var(--muted);margin:0 0 14px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:36px;flex-wrap:wrap}
+.pager a{display:flex;flex-direction:column;text-decoration:none;color:var(--ink);border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:10px 16px;max-width:48%;min-width:0}
+.pager a small{color:var(--muted)}
+.pager a.nx{margin-left:auto;text-align:right}
+.score{display:flex;gap:16px;align-items:center;margin-bottom:16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 16px;flex-wrap:wrap}
+.score b{font-family:var(--f-display);font-size:1.4rem;font-variant-numeric:tabular-nums}
+@media (max-width:560px){
+  .lesson{padding:20px 16px 20px 34px}
+  .lesson::before{left:18px}
+  .hero{padding:24px 18px}
+  .hero::before{left:26px}
+  .hero>*{margin-left:22px}
+  .item{padding:16px}
+  .pager a{max-width:100%;flex:1}
+}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important} }
+</style>
+
+<div class="topbar"><button class="menu-btn" id="menuBtn" aria-label="Ouvrir le sommaire">☰ Chapitres</button><b>Maths 4e</b></div>
+<div class="app">
+  <aside class="side" id="side"></aside>
+  <main class="main"><div class="wrap" id="view"></div></main>
+</div>
+
+<script>
+/* ================= Aides d'écriture ================= */
+const f=(n,d)=>`<span class="fr"><span>${n}</span><span>${d}</span></span>`;
+const m=s=>`<span class="m">${s}</span>`;
+const sq=s=>`√<span style="text-decoration:overline">${s}</span>`;
+
+const THEMES={
+  nombres:{nom:"Nombres et calculs",c:"--t-nombres"},
+  donnees:{nom:"Organisation et gestion de données",c:"--t-donnees"},
+  grandeurs:{nom:"Grandeurs et mesures",c:"--t-grandeurs"},
+  geo:{nom:"Espace et géométrie",c:"--t-geo"}
+};
+const TABS=[["cours","Cours"],["definitions","Définitions"],["comprehension","Compréhension"],["exercices","Exercices"],["problemes","Problèmes"]];
+
+/* ================= Contenu ================= */
+const CH=[
+/* ---------------- 1. RELATIFS ---------------- */
+{id:"relatifs",theme:"nombres",titre:"Nombres relatifs",sous:"Multiplication, division et priorités",
+cours:[
+{t:"Rappels : addition et soustraction",h:`
+<p>Un nombre relatif est formé d'un <b>signe</b> (+ ou −) et d'une <b>distance à zéro</b>.</p>
+<div class="box prop"><b>Règle</b>Soustraire un nombre revient à <b>ajouter son opposé</b>.</div>
+<div class="box ex"><b>Exemple</b><span class="calc">(−3) − (−8) = (−3) + (+8) = 5</span></div>`},
+{t:"Produit de deux nombres relatifs",h:`
+<div class="box prop"><b>Règle des signes</b>
+Le produit de deux nombres de <b>même signe</b> est <b>positif</b>.<br>
+Le produit de deux nombres de <b>signes contraires</b> est <b>négatif</b>.<br>
+La distance à zéro du produit est le produit des distances à zéro.</div>
+<div class="tbl"><table><tr><th>×</th><th>+</th><th>−</th></tr><tr><th>+</th><td>+</td><td>−</td></tr><tr><th>−</th><td>−</td><td>+</td></tr></table></div>
+<div class="box ex"><b>Exemples</b><span class="calc">(−4) × (+5) = −20 &nbsp;&nbsp; (−3) × (−7) = 21 &nbsp;&nbsp; (+2,5) × (−4) = −10</span></div>`},
+{t:"Produit de plusieurs nombres relatifs",h:`
+<div class="box prop"><b>Propriété</b>Un produit de nombres relatifs non nuls est :
+<ul><li><b>positif</b> s'il contient un nombre <b>pair</b> de facteurs négatifs ;</li>
+<li><b>négatif</b> s'il contient un nombre <b>impair</b> de facteurs négatifs.</li></ul></div>
+<div class="box ex"><b>Exemple</b>Dans <span class="m">(−2) × (+3) × (−5) × (−1)</span>, il y a 3 facteurs négatifs (impair) : le résultat est négatif.<br><span class="calc">2 × 3 × 5 × 1 = 30, donc le produit vaut −30.</span></div>
+<div class="box warn"><b>Attention</b>Si un des facteurs est nul, le produit est nul.</div>`},
+{t:"Quotient de deux nombres relatifs",h:`
+<div class="box def"><b>Définition</b>Le quotient de <span class="m"><i>a</i></span> par <span class="m"><i>b</i></span> (avec <span class="m"><i>b</i> ≠ 0</span>) est le nombre <span class="m"><i>q</i></span> tel que <span class="m"><i>b</i> × <i>q</i> = <i>a</i></span>.</div>
+<p>La division suit <b>la même règle des signes</b> que la multiplication.</p>
+<div class="box ex"><b>Exemples</b><span class="calc">(−36) ÷ (−4) = 9 &nbsp;&nbsp; 45 ÷ (−9) = −5 &nbsp;&nbsp; ${f("−12","3")} = −4</span></div>
+<p>On a toujours ${f("−<i>a</i>","<i>b</i>")} = ${f("<i>a</i>","−<i>b</i>")} = −${f("<i>a</i>","<i>b</i>")}.</p>`},
+{t:"Priorités opératoires",h:`
+<div class="box prop"><b>Ordre des calculs</b>
+<ol style="margin:.2em 0;padding-left:1.2em"><li>les calculs entre <b>parenthèses</b> (les plus intérieures d'abord) ;</li>
+<li>les <b>multiplications et divisions</b>, de gauche à droite ;</li>
+<li>les <b>additions et soustractions</b>, de gauche à droite.</li></ol></div>
+<div class="box ex"><b>Exemple</b><span class="calc">A = 5 − 3 × (−4) + (−18) ÷ 6<br>A = 5 + 12 + (−3)<br>A = 14</span></div>`}
+],
+defs:[
+{t:"Nombre relatif",d:"Nombre formé d'un signe (+ ou −) et d'un nombre appelé distance à zéro.",e:"−7 ; +3,5 ; 0"},
+{t:"Opposé",d:"Deux nombres sont opposés s'ils ont la même distance à zéro et des signes contraires. Leur somme vaut 0.",e:"L'opposé de −6 est 6."},
+{t:"Distance à zéro",d:"Le nombre sans son signe : c'est la distance entre le point et l'origine sur une droite graduée.",e:"La distance à zéro de −4,2 est 4,2."},
+{t:"Règle des signes",d:"Même signe → résultat positif ; signes contraires → résultat négatif. Valable pour × et ÷.",e:"(−5) × (−2) = 10"},
+{t:"Quotient",d:"Résultat d'une division. Le quotient de a par b (b ≠ 0) est le nombre q tel que b × q = a.",e:"(−20) ÷ 4 = −5 car 4 × (−5) = −20"},
+{t:"Facteur",d:"Chacun des nombres qui sont multipliés dans un produit.",e:"Dans 3 × (−2), les facteurs sont 3 et −2."}
+],
+qcm:[
+{q:`Combien vaut ${m("(−6) × (−8)")} ?`,o:["48","−48","−14","14"],a:0,e:"Deux facteurs négatifs : le produit est positif. 6 × 8 = 48."},
+{q:`Quel est le signe de ${m("(−1) × (−2) × (−3) × (−4) × (−5)")} ?`,o:["Positif","Négatif","On ne peut pas savoir","Le produit est nul"],a:1,e:"Il y a 5 facteurs négatifs, un nombre impair : le produit est négatif."},
+{q:`Combien vaut ${m("(−56) ÷ 7")} ?`,o:["8","−8","−49","−63"],a:1,e:"Signes contraires : résultat négatif. 56 ÷ 7 = 8, donc −8."},
+{q:`Combien vaut ${m("−3 − 4 × (−2)")} ?`,o:["14","5","−11","11"],a:1,e:"La multiplication est prioritaire : 4 × (−2) = −8. Puis −3 − (−8) = −3 + 8 = 5."}
+],
+exos:[
+{q:`Calcule ${m("(−7) × (+9)")}.`,p:[{t:"num",a:-63}],h:"Signes contraires : le résultat est négatif.",s:`${m("7 × 9 = 63")}, signes contraires donc ${m("(−7) × (+9) = −63")}.`},
+{q:`Calcule ${m("(−2,5) × (−4)")}.`,p:[{t:"num",a:10}],h:"Deux facteurs négatifs.",s:`${m("2,5 × 4 = 10")}, même signe donc ${m("(−2,5) × (−4) = 10")}.`},
+{q:`Calcule ${m("(−72) ÷ (−8)")}.`,p:[{t:"num",a:9}],h:"La règle des signes est la même que pour la multiplication.",s:`${m("72 ÷ 8 = 9")}, même signe donc le quotient est ${m("9")}.`},
+{q:`Calcule ${m("(−2) × (+3) × (−5) × (−1)")}.`,p:[{t:"num",a:-30}],h:"Compte d'abord les facteurs négatifs pour trouver le signe.",s:`3 facteurs négatifs (impair) : résultat négatif. ${m("2 × 3 × 5 × 1 = 30")}, donc ${m("−30")}.`},
+{q:`Calcule ${m("A = 5 − 3 × (−4) + (−18) ÷ 6")}.`,p:[{t:"num",a:14}],h:"Commence par la multiplication et la division.",s:`<span class="calc">A = 5 − (−12) + (−3) = 5 + 12 − 3 = 14</span>`},
+{q:`Calcule ${m("B = (−3 + 7) × (−2 − 3)")}.`,p:[{t:"num",a:-20}],h:"Calcule chaque parenthèse d'abord.",s:`<span class="calc">B = 4 × (−5) = −20</span>`}
+],
+pbs:[
+{titre:"La nuit en montagne",q:`À 6 h du matin, il fait ${m("−4 °C")} dans un refuge. La température baisse de 2 °C par heure pendant 3 heures, puis augmente de 3 °C par heure pendant 5 heures.`,
+p:[{l:"a) Quelle est la température après les 3 heures de baisse ?",t:"num",a:-10,u:"°C"},{l:"b) Quelle est la température à la fin ?",t:"num",a:5,u:"°C"}],
+h:"Une baisse de 2 °C par heure pendant 3 h, c'est 3 × (−2).",s:`<span class="calc">a) −4 + 3 × (−2) = −4 − 6 = −10 °C<br>b) −10 + 5 × 3 = −10 + 15 = 5 °C</span>`},
+{titre:"Le quiz",q:`Dans un quiz de 20 questions, une bonne réponse rapporte 5 points, une mauvaise réponse retire 3 points et une question sans réponse vaut 0.`,
+p:[{l:"a) Léa a 12 bonnes réponses, 6 mauvaises et 2 sans réponse. Quel est son score ?",t:"num",a:42,u:"points"},{l:"b) Tom a répondu aux 20 questions et a eu 8 bonnes réponses. Quel est son score ?",t:"num",a:4,u:"points"}],
+h:"Écris le score comme une somme de produits : (nombre de bonnes) × 5 + (nombre de mauvaises) × (−3).",s:`<span class="calc">a) 12 × 5 + 6 × (−3) = 60 − 18 = 42<br>b) Tom a 20 − 8 = 12 mauvaises réponses : 8 × 5 + 12 × (−3) = 40 − 36 = 4</span>`}
+]},
+
+/* ---------------- 2. FRACTIONS ---------------- */
+{id:"fractions",theme:"nombres",titre:"Fractions",sous:"Comparer, additionner, multiplier, diviser",
+cours:[
+{t:"Fractions égales et simplification",h:`
+<div class="box prop"><b>Propriété</b>Un quotient ne change pas si on multiplie (ou divise) son numérateur et son dénominateur par un même nombre non nul :
+<span class="calc">${f("<i>a</i>","<i>b</i>")} = ${f("<i>a</i> × <i>k</i>","<i>b</i> × <i>k</i>")} &nbsp;(<i>b</i> ≠ 0, <i>k</i> ≠ 0)</span></div>
+<p>Une fraction est <b>irréductible</b> quand on ne peut plus la simplifier.</p>
+<div class="box ex"><b>Exemple</b><span class="calc">${f(24,36)} = ${f("12 × 2","12 × 3")} = ${f(2,3)}</span></div>`},
+{t:"Addition et soustraction",h:`
+<div class="box prop"><b>Règle</b>Pour additionner (ou soustraire) deux fractions, on les écrit avec le <b>même dénominateur</b>, puis on additionne (ou soustrait) les numérateurs.</div>
+<div class="box ex"><b>Exemple</b><span class="calc">${f(3,4)} − ${f(5,6)} = ${f(9,12)} − ${f(10,12)} = ${f("−1",12)}</span></div>`},
+{t:"Multiplication",h:`
+<div class="box prop"><b>Règle</b>On multiplie les numérateurs entre eux et les dénominateurs entre eux :
+<span class="calc">${f("<i>a</i>","<i>b</i>")} × ${f("<i>c</i>","<i>d</i>")} = ${f("<i>a</i> × <i>c</i>","<i>b</i> × <i>d</i>")}</span></div>
+<div class="box ex"><b>Astuce</b>Simplifie <b>avant</b> de multiplier :
+<span class="calc">${f(14,15)} × ${f(25,21)} = ${f("2 × 7 × 5 × 5","3 × 5 × 3 × 7")} = ${f(10,9)}</span></div>
+<p>Prendre une fraction d'une quantité, c'est multiplier : ${f(2,3)} de 45 € = ${f(2,3)} × 45 = 30 €.</p>`},
+{t:"Inverse et division",h:`
+<div class="box def"><b>Définition</b>Deux nombres sont <b>inverses</b> l'un de l'autre si leur produit vaut 1. L'inverse de ${f("<i>a</i>","<i>b</i>")} est ${f("<i>b</i>","<i>a</i>")} (avec <span class="m"><i>a</i> ≠ 0</span>).</div>
+<div class="box prop"><b>Règle</b>Diviser par une fraction revient à <b>multiplier par son inverse</b> :
+<span class="calc">${f("<i>a</i>","<i>b</i>")} ÷ ${f("<i>c</i>","<i>d</i>")} = ${f("<i>a</i>","<i>b</i>")} × ${f("<i>d</i>","<i>c</i>")}</span></div>
+<div class="box ex"><b>Exemple</b><span class="calc">${f("−9",8)} ÷ ${f(3,4)} = ${f("−9",8)} × ${f(4,3)} = ${f("−36",24)} = ${f("−3",2)}</span></div>`},
+{t:"Comparer des fractions",h:`
+<p>Avec le <b>même dénominateur positif</b>, la plus grande fraction est celle qui a le plus grand numérateur.</p>
+<div class="box ex"><b>Exemple</b>Comparer ${f(5,6)} et ${f(7,9)} : ${f(15,18)} &gt; ${f(14,18)}, donc ${f(5,6)} &gt; ${f(7,9)}.</div>`}
+],
+defs:[
+{t:"Numérateur",d:"Nombre écrit au-dessus du trait de fraction.",e:"Dans 3/7, le numérateur est 3."},
+{t:"Dénominateur",d:"Nombre écrit sous le trait de fraction. Il n'est jamais nul.",e:"Dans 3/7, le dénominateur est 7."},
+{t:"Fraction irréductible",d:"Fraction que l'on ne peut plus simplifier : numérateur et dénominateur n'ont que 1 comme diviseur commun.",e:"2/3 est irréductible ; 4/6 ne l'est pas."},
+{t:"Dénominateur commun",d:"Un même dénominateur choisi pour pouvoir additionner ou comparer des fractions, souvent le plus petit multiple commun.",e:"Pour 3/4 et 5/6 : 12."},
+{t:"Inverse",d:"L'inverse d'un nombre x non nul est le nombre 1/x : leur produit vaut 1.",e:"L'inverse de 2/5 est 5/2."},
+{t:"Quotient",d:"La fraction a/b est le nombre qui, multiplié par b, donne a.",e:"7/3 × 3 = 7"}
+],
+qcm:[
+{q:`Combien vaut ${f(2,3)} + ${f(1,6)} ?`,o:["3/9","5/6","2/18","1/3"],a:1,e:"On réduit au même dénominateur : 4/6 + 1/6 = 5/6. On n'additionne jamais les dénominateurs."},
+{q:`Quel est l'inverse de ${f("−4",7)} ?`,o:["4/7","−7/4","7/4","−4/7"],a:1,e:"(−4/7) × (−7/4) = 1. L'inverse garde le même signe."},
+{q:`Combien vaut ${f(3,5)} × ${f(10,9)} ?`,o:["30/14","13/14","2/3","3/2"],a:2,e:"3 × 10 = 30 et 5 × 9 = 45 ; 30/45 = 2/3."},
+{q:`Diviser par ${f(2,3)} revient à :`,o:["multiplier par 2/3","multiplier par 3/2","diviser par 3/2","soustraire 2/3"],a:1,e:"Diviser par une fraction, c'est multiplier par son inverse."}
+],
+exos:[
+{q:`Calcule ${f(3,4)} − ${f(5,6)}. Donne le résultat sous forme de fraction irréductible.`,p:[{t:"num",a:-1/12,irr:true}],h:"Le plus petit dénominateur commun à 4 et 6 est 12.",s:`<span class="calc">${f(9,12)} − ${f(10,12)} = ${f("−1",12)}</span>`},
+{q:`Calcule ${f("−2",5)} + ${f(7,10)}.`,p:[{t:"num",a:3/10,irr:true}],h:"Transforme −2/5 en dixièmes.",s:`<span class="calc">${f("−4",10)} + ${f(7,10)} = ${f(3,10)}</span>`},
+{q:`Calcule ${f(14,15)} × ${f(25,21)} et simplifie.`,p:[{t:"num",a:10/9,irr:true}],h:"Décompose : 14 = 2 × 7, 15 = 3 × 5, 25 = 5 × 5, 21 = 3 × 7.",s:`<span class="calc">${f("2 × 7 × 5 × 5","3 × 5 × 3 × 7")} = ${f(10,9)}</span>`},
+{q:`Calcule ${f("−9",8)} ÷ ${f(3,4)}.`,p:[{t:"num",a:-3/2,irr:true}],h:"Multiplie par l'inverse de 3/4.",s:`<span class="calc">${f("−9",8)} × ${f(4,3)} = ${f("−36",24)} = ${f("−3",2)}</span>`},
+{q:`Calcule ${m("1 −")} ${f(2,3)} × ${f(9,4)}.`,p:[{t:"num",a:-1/2,irr:true}],h:"La multiplication est prioritaire sur la soustraction.",s:`<span class="calc">${f(2,3)} × ${f(9,4)} = ${f(18,12)} = ${f(3,2)}, puis 1 − ${f(3,2)} = ${f(2,2)} − ${f(3,2)} = ${f("−1",2)}</span>`},
+{q:`Combien valent les ${f(2,3)} de 45 € ?`,p:[{t:"num",a:30,u:"€"}],h:"« Les 2/3 de » se traduit par une multiplication.",s:`<span class="calc">${f(2,3)} × 45 = ${f(90,3)} = 30 €</span>`}
+],
+pbs:[
+{titre:"Le budget de Marc",q:`Marc dépense ${f(1,3)} de son salaire pour son loyer et ${f(1,4)} pour la nourriture.`,
+p:[{l:"a) Quelle fraction de son salaire dépense-t-il pour ces deux postes ?",t:"num",a:7/12,irr:true},{l:"b) Quelle fraction de son salaire lui reste-t-il ?",t:"num",a:5/12,irr:true},{l:"c) Son salaire est de 1 800 €. Combien lui reste-t-il ?",t:"num",a:750,u:"€"}],
+h:"Le salaire entier correspond à 12/12.",s:`<span class="calc">a) ${f(1,3)} + ${f(1,4)} = ${f(4,12)} + ${f(3,12)} = ${f(7,12)}<br>b) 1 − ${f(7,12)} = ${f(5,12)}<br>c) ${f(5,12)} × 1 800 = 750 €</span>`},
+{titre:"La cantine",q:`Dans un collège, ${f(3,5)} des élèves sont demi-pensionnaires. Parmi les demi-pensionnaires, ${f(1,4)} choisissent le menu végétarien.`,
+p:[{l:"a) Quelle fraction des élèves du collège choisit le menu végétarien ?",t:"num",a:3/20,irr:true},{l:"b) Le collège compte 640 élèves. Combien d'élèves choisissent le menu végétarien ?",t:"num",a:96,u:"élèves"}],
+h:"« Le quart des trois cinquièmes » se traduit par une multiplication.",s:`<span class="calc">a) ${f(1,4)} × ${f(3,5)} = ${f(3,20)}<br>b) ${f(3,20)} × 640 = 96 élèves</span>`}
+]},
+
+/* ---------------- 3. PUISSANCES ---------------- */
+{id:"puissances",theme:"nombres",titre:"Puissances",sous:"Exposants, puissances de 10, notation scientifique",
+cours:[
+{t:"Puissances d'un nombre",h:`
+<div class="box def"><b>Définition</b>Pour tout nombre <span class="m"><i>a</i></span> et tout entier <span class="m"><i>n</i> ≥ 1</span> :
+<span class="calc"><i>a</i><sup><i>n</i></sup> = <i>a</i> × <i>a</i> × … × <i>a</i> &nbsp;(<i>n</i> facteurs)</span><br><span class="m"><i>n</i></span> est l'<b>exposant</b>.</div>
+<p>Par convention : <span class="m"><i>a</i><sup>1</sup> = <i>a</i></span> et <span class="m"><i>a</i><sup>0</sup> = 1</span> (pour <span class="m"><i>a</i> ≠ 0</span>).</p>
+<div class="box def"><b>Exposant négatif</b>Pour <span class="m"><i>a</i> ≠ 0</span> : <span class="calc"><i>a</i><sup>−<i>n</i></sup> = ${f(1,"<i>a</i><sup><i>n</i></sup>")}</span> &nbsp;c'est l'inverse de <span class="m"><i>a</i><sup><i>n</i></sup></span>.</div>
+<div class="box ex"><b>Exemples</b><span class="calc">2<sup>5</sup> = 32 &nbsp;&nbsp; 3<sup>−2</sup> = ${f(1,9)} &nbsp;&nbsp; (−2)<sup>3</sup> = −8</span></div>
+<div class="box warn"><b>Attention</b><span class="m">(−3)<sup>2</sup> = (−3) × (−3) = 9</span> mais <span class="m">−3<sup>2</sup> = −(3 × 3) = −9</span>.<br>Une puissance d'un nombre négatif est positive si l'exposant est pair, négative s'il est impair.</div>`},
+{t:"Puissances de 10",h:`
+<div class="box prop"><b>Propriété</b><span class="m">10<sup><i>n</i></sup> = 1 0…0</span> : un 1 suivi de <span class="m"><i>n</i></span> zéros.<br>
+<span class="m">10<sup>−<i>n</i></sup> = 0,0…01</span> : le chiffre 1 est en <span class="m"><i>n</i></span>-ième position après la virgule.</div>
+<div class="box ex"><b>Exemples</b><span class="calc">10<sup>4</sup> = 10 000 &nbsp;&nbsp; 10<sup>−3</sup> = 0,001</span></div>
+<div class="box prop"><b>Règles de calcul</b>Pour tous entiers relatifs <span class="m"><i>m</i></span> et <span class="m"><i>n</i></span> :
+<span class="calc">10<sup><i>m</i></sup> × 10<sup><i>n</i></sup> = 10<sup><i>m</i>+<i>n</i></sup> &nbsp;&nbsp; ${f("10<sup><i>m</i></sup>","10<sup><i>n</i></sup>")} = 10<sup><i>m</i>−<i>n</i></sup> &nbsp;&nbsp; (10<sup><i>m</i></sup>)<sup><i>n</i></sup> = 10<sup><i>m</i>×<i>n</i></sup></span></div>`},
+{t:"Notation scientifique",h:`
+<div class="box def"><b>Définition</b>La notation scientifique d'un nombre décimal positif est l'écriture <span class="m"><i>a</i> × 10<sup><i>n</i></sup></span> où <span class="m">1 ≤ <i>a</i> &lt; 10</span> et <span class="m"><i>n</i></span> est un entier relatif.</div>
+<div class="box ex"><b>Exemples</b><span class="calc">45 000 = 4,5 × 10<sup>4</sup> &nbsp;&nbsp; 0,00072 = 7,2 × 10<sup>−4</sup></span></div>
+<p>Elle permet d'écrire et de comparer des nombres très grands (distances en astronomie) ou très petits (taille d'une cellule).</p>`},
+{t:"Préfixes des unités",h:`
+<div class="tbl"><table><tr><th>giga (G)</th><th>méga (M)</th><th>kilo (k)</th><th>milli (m)</th><th>micro (µ)</th><th>nano (n)</th></tr>
+<tr><td>10<sup>9</sup></td><td>10<sup>6</sup></td><td>10<sup>3</sup></td><td>10<sup>−3</sup></td><td>10<sup>−6</sup></td><td>10<sup>−9</sup></td></tr></table></div>
+<div class="box ex"><b>Exemple</b>1 Go = 10<sup>9</sup> octets ; 80 nm = 80 × 10<sup>−9</sup> m = 8 × 10<sup>−8</sup> m.</div>`}
+],
+defs:[
+{t:"Puissance",d:"aⁿ est le produit de n facteurs tous égaux à a.",e:"4³ = 4 × 4 × 4 = 64"},
+{t:"Exposant",d:"Le nombre n écrit en haut à droite dans aⁿ : il indique le nombre de facteurs.",e:"Dans 7⁵, l'exposant est 5."},
+{t:"Carré, cube",d:"a² se lit « a au carré », a³ se lit « a au cube ».",e:"5² = 25 ; 2³ = 8"},
+{t:"Exposant négatif",d:"a⁻ⁿ est l'inverse de aⁿ (a ≠ 0).",e:"2⁻³ = 1/8"},
+{t:"Notation scientifique",d:"Écriture a × 10ⁿ avec 1 ≤ a < 10 et n entier relatif.",e:"3 200 = 3,2 × 10³"},
+{t:"Ordre de grandeur",d:"Puissance de 10 la plus proche d'un nombre, utile pour estimer.",e:"L'ordre de grandeur de 8 700 est 10⁴."}
+],
+qcm:[
+{q:`Combien vaut ${m("2<sup>5</sup>")} ?`,o:["10","25","32","7"],a:2,e:"2 × 2 × 2 × 2 × 2 = 32. Ce n'est pas 2 × 5."},
+{q:`Combien vaut ${m("(−2)<sup>3</sup>")} ?`,o:["−6","8","−8","6"],a:2,e:"(−2) × (−2) × (−2) = −8 : trois facteurs négatifs."},
+{q:`Combien vaut ${m("10<sup>−3</sup>")} ?`,o:["−1 000","0,001","−0,001","0,0001"],a:1,e:"10⁻³ = 1/1 000 = 0,001. Un exposant négatif ne rend pas le nombre négatif."},
+{q:`Quelle est la notation scientifique de ${m("45 000")} ?`,o:["45 × 10³","4,5 × 10⁴","0,45 × 10⁵","4,5 × 10³"],a:1,e:"Il faut 1 ≤ a < 10 : 45 000 = 4,5 × 10 000 = 4,5 × 10⁴."}
+],
+exos:[
+{q:`Calcule ${m("5<sup>3</sup>")}.`,p:[{t:"num",a:125}],h:"Trois facteurs égaux à 5.",s:`${m("5 × 5 × 5 = 125")}`},
+{q:`Calcule ${m("(−1)<sup>2026</sup>")}.`,p:[{t:"num",a:1}],h:"L'exposant est-il pair ou impair ?",s:"2026 est pair : le résultat est positif et vaut 1."},
+{q:`Écris ${m("10<sup>5</sup> × 10<sup>−8</sup>")} sous la forme ${m("10<sup><i>n</i></sup>")}. Donne <i>n</i>.`,p:[{l:"n =",t:"num",a:-3}],h:"On additionne les exposants.",s:`${m("10<sup>5 + (−8)</sup> = 10<sup>−3</sup>")}`},
+{q:`Écris ${f("(10<sup>3</sup>)<sup>4</sup>","10<sup>7</sup>")} sous la forme ${m("10<sup><i>n</i></sup>")}. Donne <i>n</i>.`,p:[{l:"n =",t:"num",a:5}],h:"(10³)⁴ = 10³ˣ⁴.",s:`<span class="calc">${f("10<sup>12</sup>","10<sup>7</sup>")} = 10<sup>12 − 7</sup> = 10<sup>5</sup></span>`},
+{q:`Calcule ${m("3<sup>−2</sup>")} (sous forme de fraction).`,p:[{t:"num",a:1/9,irr:true}],h:"3⁻² est l'inverse de 3².",s:`<span class="calc">3<sup>−2</sup> = ${f(1,"3<sup>2</sup>")} = ${f(1,9)}</span>`},
+{q:`Écris ${m("0,000 72")} en notation scientifique ${m("<i>a</i> × 10<sup><i>n</i></sup>")}.`,p:[{l:"a =",t:"num",a:7.2},{l:"n =",t:"num",a:-4}],h:"Déplace la virgule pour obtenir un nombre entre 1 et 10, et compte de combien de rangs.",s:`${m("0,000 72 = 7,2 × 10<sup>−4</sup>")} (la virgule s'est déplacée de 4 rangs vers la droite).`}
+],
+pbs:[
+{titre:"La lumière du Soleil",q:`La distance Terre–Soleil est d'environ 150 millions de kilomètres. La lumière parcourt 300 000 km par seconde.`,
+p:[{l:"a) Écris 150 millions en notation scientifique a × 10ⁿ. a = ?",t:"num",a:1.5},{l:"n = ?",t:"num",a:8},{l:"b) Combien de secondes met la lumière du Soleil pour nous parvenir ?",t:"num",a:500,u:"s"},{l:"c) Arrondis cette durée à la minute près.",t:"num",a:8,u:"min"}],
+h:"Temps = distance ÷ vitesse. Écris aussi 300 000 en notation scientifique.",s:`<span class="calc">a) 150 000 000 = 1,5 × 10<sup>8</sup> km<br>b) ${f("1,5 × 10<sup>8</sup>","3 × 10<sup>5</sup>")} = 0,5 × 10<sup>3</sup> = 500 s<br>c) 500 ÷ 60 ≈ 8,3, soit environ 8 minutes</span>`},
+{titre:"Bactérie et virus",q:`Une bactérie mesure 2 µm et un virus mesure 80 nm.`,
+p:[{l:"a) Écris la taille du virus en mètres, en notation scientifique a × 10ⁿ. a = ?",t:"num",a:8},{l:"n = ?",t:"num",a:-8},{l:"b) Combien de fois la bactérie est-elle plus longue que le virus ?",t:"num",a:25}],
+h:"1 µm = 10⁻⁶ m et 1 nm = 10⁻⁹ m.",s:`<span class="calc">a) 80 nm = 80 × 10<sup>−9</sup> m = 8 × 10<sup>−8</sup> m<br>b) ${f("2 × 10<sup>−6</sup>","8 × 10<sup>−8</sup>")} = 0,25 × 10<sup>2</sup> = 25</span>`}
+]},
+
+/* ---------------- 4. ARITHMÉTIQUE ---------------- */
+{id:"arithmetique",theme:"nombres",titre:"Nombres premiers",sous:"Divisibilité et décomposition en facteurs premiers",
+cours:[
+{t:"Multiples et diviseurs",h:`
+<div class="box def"><b>Définition</b><span class="m"><i>a</i></span> et <span class="m"><i>b</i></span> sont des entiers naturels (<span class="m"><i>b</i> ≠ 0</span>). Si <span class="m"><i>a</i> = <i>b</i> × <i>k</i></span> avec <span class="m"><i>k</i></span> entier, on dit que <span class="m"><i>a</i></span> est un <b>multiple</b> de <span class="m"><i>b</i></span>, et que <span class="m"><i>b</i></span> est un <b>diviseur</b> de <span class="m"><i>a</i></span>.</div>
+<div class="box ex"><b>Exemple</b>36 = 4 × 9 : 36 est un multiple de 4, et 4 est un diviseur de 36.</div>`},
+{t:"Critères de divisibilité",h:`
+<div class="tbl"><table><tr><th>Un nombre est divisible par…</th><th>si…</th></tr>
+<tr><td>2</td><td>son chiffre des unités est 0, 2, 4, 6 ou 8</td></tr>
+<tr><td>3</td><td>la somme de ses chiffres est divisible par 3</td></tr>
+<tr><td>5</td><td>son chiffre des unités est 0 ou 5</td></tr>
+<tr><td>9</td><td>la somme de ses chiffres est divisible par 9</td></tr>
+<tr><td>10</td><td>son chiffre des unités est 0</td></tr></table></div>
+<div class="box ex"><b>Exemple</b>135 : 1 + 3 + 5 = 9, donc 135 est divisible par 3 et par 9. Il finit par 5, il est divisible par 5.</div>`},
+{t:"Nombres premiers",h:`
+<div class="box def"><b>Définition</b>Un <b>nombre premier</b> est un entier naturel qui a <b>exactement deux diviseurs</b> : 1 et lui-même.</div>
+<p>Les nombres premiers inférieurs à 30 : <b>2, 3, 5, 7, 11, 13, 17, 19, 23, 29</b>.</p>
+<div class="box warn"><b>Attention</b>1 n'est pas premier (il n'a qu'un seul diviseur). 2 est le seul nombre premier pair.</div>
+<div class="box meth box ex"><b>Méthode : tester si n est premier</b>On essaie de diviser <span class="m"><i>n</i></span> par 2, 3, 5, 7, 11… tant que le carré du diviseur reste inférieur ou égal à <span class="m"><i>n</i></span>. Si aucune division ne tombe juste, <span class="m"><i>n</i></span> est premier.</div>`},
+{t:"Décomposition en facteurs premiers",h:`
+<div class="box prop"><b>Propriété</b>Tout entier supérieur ou égal à 2 peut s'écrire comme un produit de nombres premiers. Cette décomposition est <b>unique</b> (à l'ordre près).</div>
+<div class="box ex"><b>Exemple</b><span class="calc">84 = 2 × 42 = 2 × 2 × 21 = 2 × 2 × 3 × 7 = 2<sup>2</sup> × 3 × 7</span></div>
+<p><b>Application :</b> simplifier une fraction en barrant les facteurs communs.</p>
+<div class="box ex"><b>Exemple</b><span class="calc">${f(84,126)} = ${f("2 × 2 × 3 × 7","2 × 3 × 3 × 7")} = ${f(2,3)}</span></div>`}
+],
+defs:[
+{t:"Multiple",d:"a est un multiple de b s'il existe un entier k tel que a = b × k.",e:"35 est un multiple de 7."},
+{t:"Diviseur",d:"b est un diviseur de a si la division de a par b tombe juste (reste 0).",e:"Les diviseurs de 12 : 1, 2, 3, 4, 6, 12."},
+{t:"Nombre premier",d:"Entier qui a exactement deux diviseurs : 1 et lui-même.",e:"2, 3, 5, 7, 11, 13…"},
+{t:"Décomposition en facteurs premiers",d:"Écriture d'un entier sous forme d'un produit de nombres premiers, unique à l'ordre près.",e:"60 = 2² × 3 × 5"},
+{t:"Diviseur commun",d:"Nombre qui divise à la fois deux entiers. Le plus grand sert à simplifier une fraction d'un coup.",e:"Le plus grand diviseur commun de 84 et 126 est 42."},
+{t:"Fraction irréductible",d:"Le numérateur et le dénominateur n'ont aucun facteur premier commun.",e:"2/3"}
+],
+qcm:[
+{q:"Lequel de ces nombres est premier ?",o:["21","27","29","33"],a:2,e:"21 = 3 × 7, 27 = 3 × 9, 33 = 3 × 11. 29 n'a que deux diviseurs : 1 et 29."},
+{q:"Le nombre 1 est-il premier ?",o:["Oui, il est divisible par 1 et par lui-même","Non, il n'a qu'un seul diviseur","Oui, c'est le plus petit nombre premier","Cela dépend"],a:1,e:"Un nombre premier a exactement deux diviseurs distincts. 1 n'en a qu'un."},
+{q:"Par quels nombres 135 est-il divisible ?",o:["2 et 5","3 et 5","2 et 3","10"],a:1,e:"Somme des chiffres 9 : divisible par 3 (et 9). Finit par 5 : divisible par 5. Il est impair, donc pas par 2."},
+{q:"Quelle est la décomposition en facteurs premiers de 60 ?",o:["6 × 10","2 × 30","2² × 3 × 5","4 × 15"],a:2,e:"60 = 2 × 2 × 3 × 5 = 2² × 3 × 5. Les autres contiennent des facteurs non premiers."}
+],
+exos:[
+{q:"Combien de diviseurs le nombre 36 possède-t-il ?",p:[{t:"num",a:9}],h:"Cherche les diviseurs par paires : 1 × 36, 2 × 18…",s:"1 × 36, 2 × 18, 3 × 12, 4 × 9, 6 × 6 : les diviseurs sont 1, 2, 3, 4, 6, 9, 12, 18, 36, soit 9 diviseurs."},
+{q:"Quel est le plus petit nombre premier supérieur à 50 ?",p:[{t:"num",a:53}],h:"51 = 3 × 17 et 52 est pair.",s:"51 est divisible par 3, 52 par 2. 53 n'est divisible ni par 2, 3, 5, ni 7 (et 7² = 49, 11² = 121 > 53) : 53 est premier."},
+{q:`On a ${m("84 = 2<sup><i>a</i></sup> × 3 × 7")}. Trouve <i>a</i>.`,p:[{l:"a =",t:"num",a:2}],h:"Divise 84 par 2 autant de fois que possible.",s:"84 = 2 × 42 = 2 × 2 × 21, et 21 = 3 × 7 est impair. Donc a = 2."},
+{q:`Calcule ${m("2<sup>3</sup> × 3<sup>2</sup> × 5")}.`,p:[{t:"num",a:360}],h:"2³ = 8 et 3² = 9.",s:`${m("8 × 9 × 5 = 360")}`},
+{q:`Simplifie ${f(84,126)} en utilisant les décompositions en facteurs premiers.`,p:[{t:"num",a:2/3,irr:true}],h:"126 = 2 × 3² × 7.",s:`<span class="calc">${f("2<sup>2</sup> × 3 × 7","2 × 3<sup>2</sup> × 7")} = ${f(2,3)}</span>`},
+{q:"Le nombre 221 n'est pas premier. Quel est son plus petit diviseur premier ?",p:[{t:"num",a:13}],h:"Teste 2, 3, 5, 7, 11, 13…",s:"221 n'est divisible ni par 2, 3, 5, 7, ni 11. 221 = 13 × 17."}
+],
+pbs:[
+{titre:"Les bouquets",q:`Une fleuriste dispose de 84 roses et 126 tulipes. Elle veut composer des bouquets tous identiques en utilisant toutes ses fleurs.`,
+p:[{l:"a) Combien de bouquets au maximum peut-elle composer ?",t:"num",a:42,u:"bouquets"},{l:"b) Combien de roses y aura-t-il dans chaque bouquet ?",t:"num",a:2,u:"roses"},{l:"c) Combien de tulipes dans chaque bouquet ?",t:"num",a:3,u:"tulipes"}],
+h:"Le nombre de bouquets doit diviser 84 et 126. Utilise les décompositions : 84 = 2² × 3 × 7 et 126 = 2 × 3² × 7.",s:`<span class="calc">Facteurs communs : 2 × 3 × 7 = 42. Le plus grand diviseur commun est 42.<br>a) 42 bouquets &nbsp; b) 84 ÷ 42 = 2 roses &nbsp; c) 126 ÷ 42 = 3 tulipes</span>`},
+{titre:"Les deux phares",q:`Un phare s'allume toutes les 12 secondes, un autre toutes les 18 secondes. Ils s'allument ensemble à minuit pile.`,
+p:[{l:"a) Au bout de combien de secondes s'allumeront-ils de nouveau ensemble ?",t:"num",a:36,u:"s"},{l:"b) Combien de fois s'allument-ils ensemble entre minuit (exclu) et minuit 3 minutes (inclus) ?",t:"num",a:5,u:"fois"}],
+h:"Cherche le plus petit multiple commun non nul à 12 et 18.",s:`<span class="calc">Multiples de 12 : 12, 24, 36… Multiples de 18 : 18, 36… → 36 s.<br>b) 3 min = 180 s et 180 ÷ 36 = 5</span>`}
+]},
+
+/* ---------------- 5. CALCUL LITTÉRAL ---------------- */
+{id:"litteral",theme:"nombres",titre:"Calcul littéral",sous:"Réduire, développer, factoriser",
+cours:[
+{t:"Expressions littérales",h:`
+<div class="box def"><b>Définition</b>Une <b>expression littérale</b> contient une ou plusieurs lettres qui représentent des nombres.</div>
+<p>Conventions : on peut supprimer le signe × devant une lettre ou une parenthèse.</p>
+<div class="box ex"><b>Exemples</b><span class="calc">3 × <i>x</i> = 3<i>x</i> &nbsp;&nbsp; <i>x</i> × <i>x</i> = <i>x</i><sup>2</sup> &nbsp;&nbsp; 4 × (<i>x</i> + 1) = 4(<i>x</i> + 1)</span></div>
+<p><b>Substituer</b> : remplacer la lettre par une valeur. Pour <span class="m"><i>x</i> = −2</span> : <span class="m">3<i>x</i><sup>2</sup> − <i>x</i> = 3 × (−2)<sup>2</sup> − (−2) = 12 + 2 = 14</span>.</p>`},
+{t:"Réduire une expression",h:`
+<p>Réduire, c'est regrouper les <b>termes semblables</b> (les termes en <span class="m"><i>x</i><sup>2</sup></span>, en <span class="m"><i>x</i></span>, les nombres).</p>
+<div class="box ex"><b>Exemple</b><span class="calc">5<i>x</i><sup>2</sup> + 3<i>x</i> − 2<i>x</i><sup>2</sup> − 7<i>x</i> + 1 = 3<i>x</i><sup>2</sup> − 4<i>x</i> + 1</span></div>
+<div class="box warn"><b>Attention</b>On ne peut pas additionner <span class="m"><i>x</i><sup>2</sup></span> et <span class="m"><i>x</i></span> : <span class="m">2<i>x</i><sup>2</sup> + 3<i>x</i></span> ne se réduit pas.</div>`},
+{t:"Développer : la distributivité",h:`
+<div class="box prop"><b>Distributivité simple</b><span class="calc"><i>k</i>(<i>a</i> + <i>b</i>) = <i>ka</i> + <i>kb</i> &nbsp;&nbsp; <i>k</i>(<i>a</i> − <i>b</i>) = <i>ka</i> − <i>kb</i></span></div>
+<div class="box prop"><b>Double distributivité</b><span class="calc">(<i>a</i> + <i>b</i>)(<i>c</i> + <i>d</i>) = <i>ac</i> + <i>ad</i> + <i>bc</i> + <i>bd</i></span></div>
+<div class="box ex"><b>Exemple</b><span class="calc">(<i>x</i> + 3)(<i>x</i> − 5) = <i>x</i><sup>2</sup> − 5<i>x</i> + 3<i>x</i> − 15 = <i>x</i><sup>2</sup> − 2<i>x</i> − 15</span></div>
+<div class="box warn"><b>Parenthèses précédées d'un signe −</b>On les supprime en changeant tous les signes à l'intérieur : <span class="m">−(2<i>x</i> − 5) = −2<i>x</i> + 5</span>.</div>`},
+{t:"Factoriser",h:`
+<p>Factoriser, c'est transformer une somme en produit. C'est l'opération inverse du développement.</p>
+<div class="box prop"><b>Règle</b>On repère le <b>facteur commun</b> <span class="m"><i>k</i></span> : <span class="calc"><i>ka</i> + <i>kb</i> = <i>k</i>(<i>a</i> + <i>b</i>)</span></div>
+<div class="box ex"><b>Exemples</b><span class="calc">6<i>x</i> + 15 = 3 × 2<i>x</i> + 3 × 5 = 3(2<i>x</i> + 5)<br><i>x</i><sup>2</sup> + 7<i>x</i> = <i>x</i> × <i>x</i> + <i>x</i> × 7 = <i>x</i>(<i>x</i> + 7)</span></div>`},
+{t:"Prouver avec le calcul littéral",h:`
+<p>Pour démontrer qu'un programme de calcul donne toujours le même résultat, on appelle <span class="m"><i>x</i></span> le nombre de départ et on simplifie l'expression obtenue.</p>
+<div class="box ex"><b>Exemple</b>« Ajouter 3, multiplier par 2, soustraire le double du nombre de départ » :
+<span class="calc">2(<i>x</i> + 3) − 2<i>x</i> = 2<i>x</i> + 6 − 2<i>x</i> = 6</span> Le résultat est toujours 6.</div>
+<p>Pour montrer qu'une égalité est <b>fausse</b>, un seul contre-exemple suffit.</p>`}
+],
+defs:[
+{t:"Expression littérale",d:"Expression mathématique contenant des lettres qui désignent des nombres.",e:"3x + 2"},
+{t:"Terme",d:"Chacun des éléments séparés par + ou − dans une somme.",e:"Dans 4x² − x + 7, les termes sont 4x², −x et 7."},
+{t:"Réduire",d:"Regrouper les termes semblables pour écrire l'expression avec le moins de termes possible.",e:"2x + 5x = 7x"},
+{t:"Développer",d:"Transformer un produit en somme.",e:"3(x + 2) = 3x + 6"},
+{t:"Factoriser",d:"Transformer une somme en produit en mettant en évidence un facteur commun.",e:"5x − 10 = 5(x − 2)"},
+{t:"Substituer",d:"Remplacer une lettre par une valeur numérique pour calculer l'expression.",e:"Pour x = 2, 3x + 1 = 7."}
+],
+qcm:[
+{q:`Réduire ${m("3<i>x</i> + 5 − <i>x</i> + 2")} donne :`,o:["9x","2x + 7","4x + 7","3x + 7"],a:1,e:"3x − x = 2x et 5 + 2 = 7."},
+{q:`Développer ${m("4(<i>x</i> − 3)")} donne :`,o:["4x − 3","4x − 12","4x + 12","x − 12"],a:1,e:"On multiplie chaque terme par 4 : 4 × x − 4 × 3 = 4x − 12."},
+{q:`${m("−(2<i>x</i> − 5)")} est égal à :`,o:["−2x − 5","2x + 5","−2x + 5","2x − 5"],a:2,e:"Un signe − devant une parenthèse change tous les signes à l'intérieur."},
+{q:`Pour ${m("<i>x</i> = −2")}, l'expression ${m("3<i>x</i><sup>2</sup> − <i>x</i>")} vaut :`,o:["14","−10","38","10"],a:0,e:"3 × (−2)² − (−2) = 3 × 4 + 2 = 14."}
+],
+exos:[
+{q:`Réduis ${m("5<i>x</i><sup>2</sup> + 3<i>x</i> − 2<i>x</i><sup>2</sup> − 7<i>x</i> + 1")}.`,p:[{t:"expr",a:"3x^2-4x+1",form:"dev"}],h:"Regroupe les termes en x², puis en x, puis les nombres.",s:`<span class="calc">(5 − 2)<i>x</i><sup>2</sup> + (3 − 7)<i>x</i> + 1 = 3<i>x</i><sup>2</sup> − 4<i>x</i> + 1</span>`},
+{q:`Développe et réduis ${m("−3(2<i>x</i> − 4) + 5<i>x</i>")}.`,p:[{t:"expr",a:"-x+12",form:"dev"}],h:"−3 × 2x = −6x et −3 × (−4) = +12.",s:`<span class="calc">−6<i>x</i> + 12 + 5<i>x</i> = −<i>x</i> + 12</span>`},
+{q:`Développe et réduis ${m("(<i>x</i> + 3)(<i>x</i> − 5)")}.`,p:[{t:"expr",a:"x^2-2x-15",form:"dev"}],h:"Utilise la double distributivité : 4 produits.",s:`<span class="calc"><i>x</i><sup>2</sup> − 5<i>x</i> + 3<i>x</i> − 15 = <i>x</i><sup>2</sup> − 2<i>x</i> − 15</span>`},
+{q:`Développe et réduis ${m("(2<i>x</i> − 1)(3<i>x</i> + 4)")}.`,p:[{t:"expr",a:"6x^2+5x-4",form:"dev"}],h:"2x × 3x = 6x² ; 2x × 4 = 8x ; −1 × 3x = −3x ; −1 × 4 = −4.",s:`<span class="calc">6<i>x</i><sup>2</sup> + 8<i>x</i> − 3<i>x</i> − 4 = 6<i>x</i><sup>2</sup> + 5<i>x</i> − 4</span>`},
+{q:`Factorise ${m("6<i>x</i> + 15")}.`,p:[{t:"expr",a:"3(2x+5)",form:"fact"}],h:"Quel est le plus grand nombre qui divise 6 et 15 ?",s:`<span class="calc">6<i>x</i> + 15 = 3 × 2<i>x</i> + 3 × 5 = 3(2<i>x</i> + 5)</span>`},
+{q:`Factorise ${m("<i>x</i><sup>2</sup> + 7<i>x</i>")}.`,p:[{t:"expr",a:"x(x+7)",form:"fact"}],h:"x² = x × x : x est un facteur commun.",s:`<span class="calc"><i>x</i> × <i>x</i> + <i>x</i> × 7 = <i>x</i>(<i>x</i> + 7)</span>`},
+{q:`Calcule ${m("A = 2<i>x</i><sup>2</sup> − 3<i>x</i> + 1")} pour ${m("<i>x</i> = −3")}.`,p:[{t:"num",a:28}],h:"Attention : (−3)² = 9.",s:`<span class="calc">A = 2 × 9 − 3 × (−3) + 1 = 18 + 9 + 1 = 28</span>`}
+],
+pbs:[
+{titre:"Le rectangle",q:`Un rectangle a pour longueur ${m("<i>x</i> + 5")} et pour largeur ${m("<i>x</i> + 2")} (en cm), avec ${m("<i>x</i> &gt; 0")}.`,
+p:[{l:"a) Exprime son aire en fonction de x (forme développée et réduite).",t:"expr",a:"x^2+7x+10",form:"dev"},{l:"b) Calcule l'aire pour x = 3.",t:"num",a:40,u:"cm²"},{l:"c) Exprime son périmètre en fonction de x (forme réduite).",t:"expr",a:"4x+14",form:"dev"}],
+h:"Aire = longueur × largeur. Périmètre = 2 × (longueur + largeur).",s:`<span class="calc">a) (<i>x</i> + 5)(<i>x</i> + 2) = <i>x</i><sup>2</sup> + 2<i>x</i> + 5<i>x</i> + 10 = <i>x</i><sup>2</sup> + 7<i>x</i> + 10<br>b) 9 + 21 + 10 = 40 cm² (ou 8 × 5 = 40)<br>c) 2(<i>x</i> + 5 + <i>x</i> + 2) = 2(2<i>x</i> + 7) = 4<i>x</i> + 14</span>`},
+{titre:"Le programme mystère",q:`Programme : « Choisir un nombre. Lui ajouter 3. Multiplier le résultat par 2. Soustraire le double du nombre de départ. »`,
+p:[{l:"a) Quel résultat obtient-on avec 5 ?",t:"num",a:6},{l:"b) Quel résultat obtient-on avec −7 ?",t:"num",a:6},{l:"c) On choisit x au départ. Écris le résultat en fonction de x, sous forme réduite.",t:"expr",a:"6",form:"dev"}],
+h:"Traduis chaque étape : x → x + 3 → 2(x + 3) → 2(x + 3) − 2x.",s:`<span class="calc">a) (5 + 3) × 2 − 10 = 6<br>b) (−7 + 3) × 2 − (−14) = −8 + 14 = 6<br>c) 2(<i>x</i> + 3) − 2<i>x</i> = 2<i>x</i> + 6 − 2<i>x</i> = 6</span>Le résultat vaut toujours 6, quel que soit le nombre choisi.`}
+]},
+
+/* ---------------- 6. ÉQUATIONS ---------------- */
+{id:"equations",theme:"nombres",titre:"Équations",sous:"Résoudre une équation du premier degré",
+cours:[
+{t:"Vocabulaire",h:`
+<div class="box def"><b>Définition</b>Une <b>équation</b> est une égalité dans laquelle figure un nombre inconnu, désigné par une lettre. <b>Résoudre</b> l'équation, c'est trouver toutes les valeurs de l'inconnue pour lesquelles l'égalité est vraie : ce sont les <b>solutions</b>.</div>
+<div class="box ex"><b>Tester une valeur</b>−2 est-il solution de <span class="m">3<i>x</i> + 4 = −2</span> ?<br>3 × (−2) + 4 = −6 + 4 = −2. L'égalité est vraie : −2 est solution.</div>`},
+{t:"Règles de résolution",h:`
+<div class="box prop"><b>Propriétés</b>On obtient une équation qui a les mêmes solutions si :
+<ul><li>on <b>ajoute</b> ou <b>soustrait</b> un même nombre aux deux membres ;</li>
+<li>on <b>multiplie</b> ou <b>divise</b> les deux membres par un même nombre <b>non nul</b>.</li></ul></div>
+<div class="box ex"><b>Exemple</b><span class="calc">5<i>x</i> − 3 = 22<br>5<i>x</i> − 3 + 3 = 22 + 3<br>5<i>x</i> = 25<br><i>x</i> = 25 ÷ 5 = 5</span></div>`},
+{t:"Inconnue dans les deux membres",h:`
+<div class="box ex box meth"><b>Méthode</b>On regroupe les termes en <span class="m"><i>x</i></span> dans un membre et les nombres dans l'autre.
+<span class="calc">4<i>x</i> + 9 = <i>x</i> − 6<br>4<i>x</i> − <i>x</i> = −6 − 9<br>3<i>x</i> = −15<br><i>x</i> = −5</span></div>
+<p>S'il y a des parenthèses, on <b>développe</b> d'abord : <span class="m">3(<i>x</i> − 2) = 2<i>x</i> + 5</span> devient <span class="m">3<i>x</i> − 6 = 2<i>x</i> + 5</span>, d'où <span class="m"><i>x</i> = 11</span>.</p>
+<p><b>Vérifie</b> toujours en remplaçant : 3 × (11 − 2) = 27 et 2 × 11 + 5 = 27. ✓</p>`},
+{t:"Mettre un problème en équation",h:`
+<ol style="padding-left:1.2em"><li><b>Choisir l'inconnue</b> : « Soit <span class="m"><i>x</i></span> l'âge du premier frère. »</li>
+<li><b>Traduire</b> l'énoncé par une équation.</li>
+<li><b>Résoudre</b> l'équation.</li>
+<li><b>Vérifier</b> que la solution convient au problème.</li>
+<li><b>Conclure</b> par une phrase.</li></ol>`}
+],
+defs:[
+{t:"Équation",d:"Égalité contenant un nombre inconnu désigné par une lettre.",e:"2x + 1 = 9"},
+{t:"Inconnue",d:"La lettre qui représente le nombre que l'on cherche.",e:"Dans 2x + 1 = 9, l'inconnue est x."},
+{t:"Membre",d:"Chacune des deux expressions situées de part et d'autre du signe =.",e:"Membre de gauche : 2x + 1 ; de droite : 9."},
+{t:"Solution",d:"Valeur de l'inconnue qui rend l'égalité vraie.",e:"4 est solution de 2x + 1 = 9."},
+{t:"Résoudre",d:"Trouver toutes les solutions d'une équation.",e:"2x = 8 donne x = 4."},
+{t:"Équation du premier degré",d:"Équation qui se ramène à la forme ax + b = 0, l'inconnue n'apparaît pas au carré.",e:"3x − 7 = x + 1"}
+],
+qcm:[
+{q:"Le nombre −2 est solution de l'équation :",o:["3x + 4 = −2","2x − 1 = 3","x² = −4","5 − x = 3"],a:0,e:"3 × (−2) + 4 = −2 ✓. Dans les autres cas, l'égalité est fausse pour x = −2."},
+{q:`La solution de ${m("<i>x</i> − 7 = 12")} est :`,o:["5","−5","19","84"],a:2,e:"On ajoute 7 aux deux membres : x = 19."},
+{q:`La solution de ${m("4<i>x</i> = −20")} est :`,o:["−16","−5","5","−80"],a:1,e:"On divise les deux membres par 4 : x = −20 ÷ 4 = −5."},
+{q:`Pour résoudre ${m("3<i>x</i> + 5 = 20")}, la première étape la plus simple est :`,o:["diviser par 3 seulement le terme 3x","soustraire 5 aux deux membres","ajouter 5 aux deux membres","multiplier par 3"],a:1,e:"On isole 3x en soustrayant 5 des deux côtés : 3x = 15, puis x = 5."}
+],
+exos:[
+{q:`Résous ${m("5<i>x</i> − 3 = 22")}.`,p:[{l:"x =",t:"num",a:5}],h:"Ajoute 3 aux deux membres.",s:`<span class="calc">5<i>x</i> = 25, donc <i>x</i> = 5</span>`},
+{q:`Résous ${m("7 − 2<i>x</i> = 15")}.`,p:[{l:"x =",t:"num",a:-4}],h:"Soustrais 7 aux deux membres, puis divise par −2.",s:`<span class="calc">−2<i>x</i> = 8, donc <i>x</i> = 8 ÷ (−2) = −4</span>`},
+{q:`Résous ${m("4<i>x</i> + 9 = <i>x</i> − 6")}.`,p:[{l:"x =",t:"num",a:-5}],h:"Regroupe les x à gauche et les nombres à droite.",s:`<span class="calc">3<i>x</i> = −15, donc <i>x</i> = −5</span>`},
+{q:`Résous ${m("3(<i>x</i> − 2) = 2<i>x</i> + 5")}.`,p:[{l:"x =",t:"num",a:11}],h:"Développe d'abord le membre de gauche.",s:`<span class="calc">3<i>x</i> − 6 = 2<i>x</i> + 5<br><i>x</i> = 11</span>`},
+{q:`Résous ${f("<i>x</i>",4)} ${m("+ 1 = 3")}.`,p:[{l:"x =",t:"num",a:8}],h:"Isole x/4, puis multiplie par 4.",s:`<span class="calc">${f("<i>x</i>",4)} = 2, donc <i>x</i> = 8</span>`},
+{q:`Résous ${m("2(3<i>x</i> + 1) − 5 = 4<i>x</i> + 9")}.`,p:[{l:"x =",t:"num",a:6}],h:"Développe et réduis le membre de gauche : 6x − 3.",s:`<span class="calc">6<i>x</i> + 2 − 5 = 4<i>x</i> + 9<br>6<i>x</i> − 3 = 4<i>x</i> + 9<br>2<i>x</i> = 12<br><i>x</i> = 6</span>`}
+],
+pbs:[
+{titre:"Les trois frères",q:`Trois frères ont ensemble 55 ans. Le deuxième a 3 ans de plus que le premier, et le troisième a le double de l'âge du premier.`,
+p:[{l:"a) Quel est l'âge du premier frère ?",t:"num",a:13,u:"ans"},{l:"b) Quel est l'âge du troisième frère ?",t:"num",a:26,u:"ans"}],
+h:"Soit x l'âge du premier. Les âges sont x, x + 3 et 2x.",s:`<span class="calc"><i>x</i> + (<i>x</i> + 3) + 2<i>x</i> = 55<br>4<i>x</i> + 3 = 55<br>4<i>x</i> = 52<br><i>x</i> = 13</span>Les âges sont 13, 16 et 26 ans. Vérification : 13 + 16 + 26 = 55.`},
+{titre:"La carte de cinéma",q:`Au cinéma, le tarif A coûte 9 € la place. Le tarif B demande un abonnement de 24 € puis 6 € par place.`,
+p:[{l:"a) Pour combien de places les deux tarifs coûtent-ils le même prix ?",t:"num",a:8,u:"places"},{l:"b) Quel est alors ce prix ?",t:"num",a:72,u:"€"},{l:"c) Pour 12 places, combien économise-t-on avec le tarif B ?",t:"num",a:12,u:"€"}],
+h:"Pour x places : tarif A = 9x et tarif B = 24 + 6x.",s:`<span class="calc">a) 9<i>x</i> = 24 + 6<i>x</i> ⇔ 3<i>x</i> = 24 ⇔ <i>x</i> = 8<br>b) 9 × 8 = 72 €<br>c) A : 9 × 12 = 108 € ; B : 24 + 72 = 96 € ; économie : 12 €</span>`}
+]},
+
+/* ---------------- 7. PROPORTIONNALITÉ ---------------- */
+{id:"proportionnalite",theme:"donnees",titre:"Proportionnalité",sous:"Quatrième proportionnelle, graphiques, pourcentages",
+cours:[
+{t:"Tableau de proportionnalité",h:`
+<p>Deux grandeurs sont <b>proportionnelles</b> si l'on passe des valeurs de l'une aux valeurs de l'autre en multipliant toujours par le même nombre : le <b>coefficient de proportionnalité</b>.</p>
+<div class="tbl"><table><tr><th>Masse (kg)</th><td>2</td><td>3</td><td>5</td></tr><tr><th>Prix (€)</th><td>4,80</td><td>7,20</td><td>12</td></tr></table></div>
+<p>Ici le coefficient est 2,4 : le prix d'un kilogramme est 2,40 €.</p>`},
+{t:"Quatrième proportionnelle",h:`
+<div class="box prop"><b>Produit en croix</b>Si ${f("<i>a</i>","<i>b</i>")} = ${f("<i>c</i>","<i>d</i>")} (tableau de proportionnalité), alors <span class="m"><i>a</i> × <i>d</i> = <i>b</i> × <i>c</i></span>.</div>
+<div class="box ex"><b>Exemple</b>Si 3 kg coûtent 7,20 €, combien coûtent 5 kg ?<br><span class="calc"><i>x</i> = ${f("5 × 7,20","3")} = 12 €</span></div>`},
+{t:"Représentation graphique",h:`
+<div class="box prop"><b>Propriété</b>Une situation de proportionnalité est représentée par des points <b>alignés avec l'origine</b> du repère.<br>Réciproquement, si les points sont sur une droite passant par l'origine, il y a proportionnalité.</div>
+<div class="figure"><svg viewBox="0 0 260 170" width="260" role="img" aria-label="Droite passant par l'origine">
+<line class="s" x1="30" y1="150" x2="250" y2="150"/><line class="s" x1="30" y1="150" x2="30" y2="10"/>
+<line class="h" x1="30" y1="150" x2="240" y2="25"/>
+<circle cx="100" cy="108.3" r="4" fill="var(--accent)"/><circle cx="170" cy="66.7" r="4" fill="var(--accent)"/>
+<text class="t" x="18" y="166">O</text></svg></div>`},
+{t:"Pourcentages",h:`
+<div class="box prop"><b>Appliquer un pourcentage</b>Prendre <span class="m"><i>t</i> %</span> d'une quantité, c'est la multiplier par ${f("<i>t</i>",100)}.</div>
+<div class="box prop"><b>Évolutions</b>Augmenter de <span class="m"><i>t</i> %</span>, c'est multiplier par <span class="m">1 + ${f("<i>t</i>",100)}</span>.<br>Diminuer de <span class="m"><i>t</i> %</span>, c'est multiplier par <span class="m">1 − ${f("<i>t</i>",100)}</span>.</div>
+<div class="box ex"><b>Exemples</b>15 % de 80 = 0,15 × 80 = 12.<br>Un pull à 45 € soldé à −30 % : 45 × 0,7 = 31,50 €.</div>
+<div class="box warn"><b>Attention</b>Une hausse de 10 % suivie d'une baisse de 10 % ne ramène pas au prix de départ : 1,1 × 0,9 = 0,99.</div>`},
+{t:"Échelles",h:`
+<p>Sur un plan, les longueurs sont proportionnelles aux longueurs réelles. L'<b>échelle</b> est le coefficient : ${f(1,"25 000")} signifie que 1 cm sur la carte représente 25 000 cm (250 m) en réalité.</p>`}
+],
+defs:[
+{t:"Grandeurs proportionnelles",d:"On passe de l'une à l'autre en multipliant toujours par le même nombre.",e:"Prix et masse de pommes au kilo."},
+{t:"Coefficient de proportionnalité",d:"Le nombre par lequel on multiplie pour passer d'une grandeur à l'autre.",e:"Prix au kg = 2,40 €/kg."},
+{t:"Quatrième proportionnelle",d:"Valeur manquante d'un tableau de proportionnalité à quatre cases, calculée par produit en croix.",e:"4/10 = 6/x donne x = 15."},
+{t:"Pourcentage",d:"Proportion exprimée sur 100.",e:"25 % = 25/100 = 0,25"},
+{t:"Coefficient multiplicateur",d:"Nombre par lequel on multiplie lors d'une évolution : 1 + t/100 pour une hausse, 1 − t/100 pour une baisse.",e:"Hausse de 8 % : × 1,08"},
+{t:"Échelle",d:"Coefficient de proportionnalité entre les longueurs sur un plan et les longueurs réelles (même unité).",e:"1/100 : 1 cm représente 1 m."}
+],
+qcm:[
+{q:"Le tableau 3 → 12 et 5 → 20 est-il un tableau de proportionnalité ?",o:["Oui, coefficient 4","Non","Oui, coefficient 9","Oui, coefficient 15"],a:0,e:"3 × 4 = 12 et 5 × 4 = 20 : on multiplie toujours par 4."},
+{q:"Une situation de proportionnalité est représentée par :",o:["une courbe","une droite quelconque","une droite passant par l'origine","des points au hasard"],a:2,e:"Les points sont alignés avec l'origine du repère."},
+{q:"Augmenter un prix de 20 % revient à le multiplier par :",o:["0,2","1,02","1,2","20"],a:2,e:"1 + 20/100 = 1,2."},
+{q:"Combien valent 15 % de 80 ?",o:["15","12","8","1,2"],a:1,e:"0,15 × 80 = 12."}
+],
+exos:[
+{q:`Complète : ${f(4,10)} = ${f(6,"<i>x</i>")}. Trouve <i>x</i>.`,p:[{l:"x =",t:"num",a:15}],h:"Produit en croix : 4 × x = 10 × 6.",s:`<span class="calc"><i>x</i> = ${f("10 × 6",4)} = 15</span>`},
+{q:"3 kg de pommes coûtent 7,20 €. Combien coûtent 5 kg ?",p:[{t:"num",a:12,u:"€"}],h:"Calcule d'abord le prix d'un kilogramme.",s:"7,20 ÷ 3 = 2,40 € le kg ; 5 × 2,40 = 12 €."},
+{q:"Un pull à 45 € est soldé à −30 %. Quel est son nouveau prix ?",p:[{t:"num",a:31.5,u:"€"}],h:"Une baisse de 30 % : multiplier par 0,7.",s:"45 × 0,7 = 31,50 €."},
+{q:"Un vélo à 250 € augmente de 8 %. Quel est son nouveau prix ?",p:[{t:"num",a:270,u:"€"}],h:"Multiplie par 1,08.",s:"250 × 1,08 = 270 €."},
+{q:"Un prix passe de 60 € à 75 €. De quel pourcentage a-t-il augmenté ?",p:[{t:"num",a:25,u:"%"}],h:"Calcule l'augmentation, puis divise-la par le prix de départ.",s:"Augmentation : 15 €. 15 ÷ 60 = 0,25 = 25 %."},
+{q:"Sur une carte à l'échelle 1/25 000, deux villages sont à 6 cm l'un de l'autre. Quelle est la distance réelle en km ?",p:[{t:"num",a:1.5,u:"km"}],h:"6 cm sur la carte représentent 6 × 25 000 cm.",s:"6 × 25 000 = 150 000 cm = 1 500 m = 1,5 km."}
+],
+pbs:[
+{titre:"Les crêpes",q:`Une recette de crêpes pour 4 personnes demande 250 g de farine, 4 œufs et 50 cL de lait. On veut la préparer pour 10 personnes.`,
+p:[{l:"a) Masse de farine :",t:"num",a:625,u:"g"},{l:"b) Nombre d'œufs :",t:"num",a:10,u:"œufs"},{l:"c) Volume de lait :",t:"num",a:125,u:"cL"}],
+h:"Le coefficient pour passer de 4 à 10 personnes est 10 ÷ 4 = 2,5.",s:`<span class="calc">Coefficient 2,5 : 250 × 2,5 = 625 g ; 4 × 2,5 = 10 œufs ; 50 × 2,5 = 125 cL</span>`},
+{titre:"Hausse puis baisse",q:`Un article coûte 200 €. Son prix augmente de 10 %, puis le nouveau prix baisse de 10 %.`,
+p:[{l:"a) Prix après la hausse :",t:"num",a:220,u:"€"},{l:"b) Prix après la baisse :",t:"num",a:198,u:"€"},{l:"c) Au total, de quel pourcentage le prix a-t-il baissé ?",t:"num",a:1,u:"%"}],
+h:"La baisse de 10 % s'applique au nouveau prix, pas au prix de départ.",s:`<span class="calc">a) 200 × 1,1 = 220 €<br>b) 220 × 0,9 = 198 €<br>c) 200 − 198 = 2 € de baisse ; 2 ÷ 200 = 0,01 = 1 %</span>`}
+]},
+
+/* ---------------- 8. STATISTIQUES ---------------- */
+{id:"statistiques",theme:"donnees",titre:"Statistiques",sous:"Moyenne, médiane, étendue",
+cours:[
+{t:"Vocabulaire",h:`
+<p>Une <b>série statistique</b> est une liste de données (les <b>valeurs</b>). L'<b>effectif</b> d'une valeur est le nombre de fois où elle apparaît ; l'<b>effectif total</b> est le nombre total de données.</p>
+<div class="box def"><b>Fréquence</b>La fréquence d'une valeur est ${f("effectif de la valeur","effectif total")}. On peut l'écrire en fraction, en décimal ou en pourcentage.</div>`},
+{t:"Moyenne",h:`
+<div class="box def"><b>Moyenne</b><span class="calc">moyenne = ${f("somme de toutes les valeurs","effectif total")}</span></div>
+<div class="box def"><b>Moyenne pondérée</b>Quand chaque valeur a un effectif (ou un coefficient) :
+<span class="calc">moyenne = ${f("<i>v</i><sub>1</sub> × <i>n</i><sub>1</sub> + <i>v</i><sub>2</sub> × <i>n</i><sub>2</sub> + …","<i>n</i><sub>1</sub> + <i>n</i><sub>2</sub> + …")}</span></div>
+<div class="box ex"><b>Exemple</b>Notes 10 (coef. 2), 15 (coef. 3), 7 (coef. 1) :
+<span class="calc">${f("10 × 2 + 15 × 3 + 7 × 1","2 + 3 + 1")} = ${f(72,6)} = 12</span></div>`},
+{t:"Médiane",h:`
+<div class="box def"><b>Médiane</b>Dans une série <b>rangée dans l'ordre croissant</b>, la médiane est une valeur qui partage la série en deux groupes de même effectif : au moins la moitié des valeurs lui sont inférieures ou égales, et au moins la moitié supérieures ou égales.</div>
+<ul><li>Effectif total <b>impair</b> : c'est la valeur du milieu.<br><span class="m">3 ; 7 ; <b>8</b> ; 12 ; 20</span> → médiane 8.</li>
+<li>Effectif total <b>pair</b> : on prend la moyenne des deux valeurs centrales.<br><span class="m">2 ; 4 ; <b>7</b> ; <b>9</b> ; 11 ; 13</span> → médiane (7 + 9) ÷ 2 = 8.</li></ul>
+<div class="box warn"><b>Attention</b>Il faut toujours ranger les valeurs avant de chercher la médiane.</div>`},
+{t:"Étendue",h:`
+<div class="box def"><b>Étendue</b><span class="calc">étendue = plus grande valeur − plus petite valeur</span>Elle mesure la <b>dispersion</b> des valeurs.</div>
+<p>Deux séries peuvent avoir la même moyenne mais des étendues très différentes.</p>`}
+],
+defs:[
+{t:"Effectif",d:"Nombre de fois qu'une valeur apparaît dans la série.",e:"Si 39 apparaît 8 fois, son effectif est 8."},
+{t:"Fréquence",d:"Effectif d'une valeur divisé par l'effectif total.",e:"8 sur 20 : 0,4 soit 40 %."},
+{t:"Moyenne",d:"Somme des valeurs divisée par l'effectif total.",e:"(8 + 12 + 15 + 9) ÷ 4 = 11"},
+{t:"Moyenne pondérée",d:"Moyenne où chaque valeur est multipliée par son effectif ou son coefficient.",e:"Moyenne trimestrielle avec coefficients."},
+{t:"Médiane",d:"Valeur qui partage la série ordonnée en deux groupes de même effectif.",e:"Médiane de 3 ; 7 ; 8 ; 12 ; 20 : 8"},
+{t:"Étendue",d:"Différence entre la plus grande et la plus petite valeur.",e:"21 − 5 = 16"}
+],
+qcm:[
+{q:"Quelle est la moyenne de 8 ; 12 ; 15 ; 9 ?",o:["11","12","10,5","44"],a:0,e:"(8 + 12 + 15 + 9) ÷ 4 = 44 ÷ 4 = 11."},
+{q:"Quelle est la médiane de 3 ; 7 ; 8 ; 12 ; 20 ?",o:["10","8","12","7,5"],a:1,e:"5 valeurs rangées : la 3ᵉ est la valeur du milieu, 8."},
+{q:"Quelle est l'étendue de 14 ; 5 ; 21 ; 9 ?",o:["16","9","12,25","26"],a:0,e:"21 − 5 = 16."},
+{q:"Une valeur a un effectif de 6 pour un effectif total de 24. Sa fréquence est :",o:["6 %","4 %","25 %","0,6"],a:2,e:"6 ÷ 24 = 0,25 = 25 %."}
+],
+exos:[
+{q:"Voici les notes d'Inès : 12 ; 8 ; 15 ; 10 ; 14 ; 9 ; 16. Calcule sa moyenne.",p:[{t:"num",a:12}],h:"Additionne les 7 notes puis divise par 7.",s:"Somme : 84. 84 ÷ 7 = 12."},
+{q:"Quelle est la médiane de la série 12 ; 8 ; 15 ; 10 ; 14 ; 9 ; 16 ?",p:[{t:"num",a:12}],h:"Range d'abord les valeurs.",s:"8 ; 9 ; 10 ; <b>12</b> ; 14 ; 15 ; 16 : la 4ᵉ valeur est 12."},
+{q:"Quelle est la médiane de la série 4 ; 11 ; 7 ; 2 ; 9 ; 13 ?",p:[{t:"num",a:8}],h:"6 valeurs : prends la moyenne des deux valeurs centrales.",s:"2 ; 4 ; <b>7</b> ; <b>9</b> ; 11 ; 13. Médiane : (7 + 9) ÷ 2 = 8."},
+{q:"Calcule la moyenne pondérée : 10 (coefficient 2), 15 (coefficient 3), 7 (coefficient 1).",p:[{t:"num",a:12}],h:"Divise par la somme des coefficients, pas par 3.",s:`<span class="calc">${f("20 + 45 + 7",6)} = ${f(72,6)} = 12</span>`},
+{q:`Pointures d'une classe :<div class="tbl"><table><tr><th>Pointure</th><td>37</td><td>38</td><td>39</td><td>40</td></tr><tr><th>Effectif</th><td>3</td><td>5</td><td>8</td><td>4</td></tr></table></div>`,
+p:[{l:"a) Pointure moyenne :",t:"num",a:38.65},{l:"b) Pointure médiane :",t:"num",a:39},{l:"c) Fréquence de la pointure 39 (en %) :",t:"num",a:40,u:"%"}],h:"Effectif total : 20. Pour la médiane, cherche les 10ᵉ et 11ᵉ valeurs avec les effectifs cumulés.",s:`<span class="calc">a) ${f("37 × 3 + 38 × 5 + 39 × 8 + 40 × 4",20)} = ${f(773,20)} = 38,65<br>b) Effectifs cumulés : 3 ; 8 ; 16 ; 20. Les 10ᵉ et 11ᵉ valeurs sont 39 : médiane 39.<br>c) 8 ÷ 20 = 0,4 = 40 %</span>`}
+],
+pbs:[
+{titre:"Objectif 12",q:`Lucas a eu 11 ; 14 ; 9 et 13 à ses quatre premiers contrôles. Un cinquième contrôle aura lieu.`,
+p:[{l:"a) Quelle est sa moyenne actuelle ?",t:"num",a:11.75},{l:"b) Quelle note doit-il obtenir au 5ᵉ contrôle pour avoir exactement 12 de moyenne ?",t:"num",a:13}],
+h:"Pour avoir 12 de moyenne sur 5 notes, la somme des notes doit être 5 × 12.",s:`<span class="calc">a) (11 + 14 + 9 + 13) ÷ 4 = 47 ÷ 4 = 11,75<br>b) Il faut une somme de 60. 60 − 47 = 13</span>`},
+{titre:"Une semaine d'hiver",q:`Températures relevées à 7 h pendant une semaine (en °C) : −2 ; 1 ; 4 ; −3 ; 0 ; 5 ; 2.`,
+p:[{l:"a) Température moyenne :",t:"num",a:1,u:"°C"},{l:"b) Température médiane :",t:"num",a:1,u:"°C"},{l:"c) Étendue :",t:"num",a:8,u:"°C"}],
+h:"Attention aux nombres négatifs dans la somme et dans l'étendue.",s:`<span class="calc">a) (−2 + 1 + 4 − 3 + 0 + 5 + 2) ÷ 7 = 7 ÷ 7 = 1<br>b) −3 ; −2 ; 0 ; <b>1</b> ; 2 ; 4 ; 5 → 1<br>c) 5 − (−3) = 8</span>`}
+]},
+
+/* ---------------- 9. PROBABILITÉS ---------------- */
+{id:"probabilites",theme:"donnees",titre:"Probabilités",sous:"Expériences aléatoires et calcul de probabilités",
+cours:[
+{t:"Expérience aléatoire",h:`
+<div class="box def"><b>Définition</b>Une <b>expérience aléatoire</b> a plusieurs résultats possibles, appelés <b>issues</b>, et on ne peut pas prévoir lequel se produira.</div>
+<p>Un <b>événement</b> est une condition qui peut être réalisée ou non par les issues. Exemple avec un dé : « obtenir un nombre pair » est réalisé par les issues 2, 4 et 6.</p>`},
+{t:"Probabilité d'un événement",h:`
+<div class="box prop"><b>Propriétés</b><ul><li>Une probabilité est un nombre compris entre <b>0</b> et <b>1</b>.</li>
+<li>Un événement <b>impossible</b> a une probabilité de 0 ; un événement <b>certain</b>, de 1.</li>
+<li>La somme des probabilités de toutes les issues vaut 1.</li></ul></div>
+<div class="box prop"><b>Équiprobabilité</b>Si toutes les issues ont la même chance de se produire :
+<span class="calc">P(A) = ${f("nombre d'issues favorables à A","nombre total d'issues")}</span></div>
+<div class="box ex"><b>Exemple</b>Dé équilibré à 6 faces : P(« obtenir un nombre pair ») = ${f(3,6)} = ${f(1,2)}.</div>`},
+{t:"Événement contraire",h:`
+<div class="box def"><b>Définition</b>L'événement contraire de A, noté « non A », est réalisé quand A ne l'est pas.</div>
+<div class="box prop"><b>Propriété</b><span class="calc">P(non A) = 1 − P(A)</span></div>
+<div class="box ex"><b>Exemple</b>Urne de 10 boules dont 2 vertes : P(verte) = 0,2 donc P(pas verte) = 0,8.</div>`},
+{t:"Fréquence et probabilité",h:`
+<p>Quand on répète une expérience un grand nombre de fois, la <b>fréquence</b> d'apparition d'un événement se rapproche de sa <b>probabilité</b>. On peut ainsi estimer une probabilité inconnue (une punaise qui tombe sur la pointe, par exemple).</p>`}
+],
+defs:[
+{t:"Expérience aléatoire",d:"Expérience dont on connaît les résultats possibles sans pouvoir prévoir lequel se produira.",e:"Lancer un dé."},
+{t:"Issue",d:"Un résultat possible d'une expérience aléatoire.",e:"Obtenir 4 au dé."},
+{t:"Événement",d:"Ensemble d'issues décrit par une phrase.",e:"« Obtenir un nombre pair » = {2 ; 4 ; 6}"},
+{t:"Équiprobabilité",d:"Situation où toutes les issues ont la même probabilité.",e:"Pièce équilibrée : pile 1/2, face 1/2."},
+{t:"Événement contraire",d:"Non A est réalisé exactement quand A ne l'est pas. P(non A) = 1 − P(A).",e:"Contraire de « pair » : « impair »."},
+{t:"Événement certain / impossible",d:"Certain : toujours réalisé, probabilité 1. Impossible : jamais réalisé, probabilité 0.",e:"Obtenir 7 avec un dé à 6 faces : impossible."}
+],
+qcm:[
+{q:"On lance un dé équilibré à 6 faces. Probabilité d'obtenir 5 :",o:["1/5","5/6","1/6","1/2"],a:2,e:"Une issue favorable sur 6 issues équiprobables."},
+{q:"Probabilité d'obtenir un nombre pair avec ce dé :",o:["1/2","1/3","2/3","1/6"],a:0,e:"3 issues favorables (2, 4, 6) sur 6 : 3/6 = 1/2."},
+{q:"Si P(A) = 0,3, alors P(non A) vaut :",o:["0,3","0,7","−0,3","1,3"],a:1,e:"P(non A) = 1 − 0,3 = 0,7."},
+{q:"Une probabilité peut-elle valoir 1,2 ?",o:["Oui","Non","Seulement pour un événement certain","Oui, si l'expérience est répétée"],a:1,e:"Une probabilité est toujours comprise entre 0 et 1."}
+],
+exos:[
+{q:"Une urne contient 3 boules rouges, 5 bleues et 2 vertes. On tire une boule au hasard. Quelle est la probabilité de tirer une boule bleue ?",p:[{t:"num",a:0.5}],h:"Il y a 10 boules au total.",s:"5 boules bleues sur 10 : 5/10 = 1/2."},
+{q:"Même urne. Quelle est la probabilité de ne pas tirer une boule verte ?",p:[{t:"num",a:0.8}],h:"Utilise l'événement contraire.",s:"P(verte) = 2/10 = 0,2, donc P(pas verte) = 1 − 0,2 = 0,8 (soit 4/5)."},
+{q:"On tire une carte dans un jeu de 32 cartes. Quelle est la probabilité de tirer un as ?",p:[{t:"num",a:1/8}],h:"Il y a 4 as dans le jeu.",s:"4/32 = 1/8."},
+{q:"Même jeu. Quelle est la probabilité de tirer un cœur ?",p:[{t:"num",a:1/4}],h:"Le jeu a 4 couleurs de 8 cartes.",s:"8/32 = 1/4."},
+{q:"Une roue a trois secteurs A, B et C. P(A) = 0,25 et P(B) = 0,4. Quelle est P(C) ?",p:[{t:"num",a:0.35}],h:"La somme des probabilités vaut 1.",s:"1 − 0,25 − 0,4 = 0,35."}
+],
+pbs:[
+{titre:"Les jetons numérotés",q:`Un sac contient 20 jetons numérotés de 1 à 20. On tire un jeton au hasard.`,
+p:[{l:"a) Probabilité de tirer un multiple de 5 :",t:"num",a:1/5},{l:"b) Probabilité de tirer un nombre premier :",t:"num",a:2/5},{l:"c) Probabilité de tirer un multiple de 3 ou de 5 :",t:"num",a:9/20}],
+h:"Fais la liste. Attention, 15 est à la fois multiple de 3 et de 5 : ne le compte qu'une fois.",s:`<span class="calc">a) 5 ; 10 ; 15 ; 20 → 4/20 = 1/5<br>b) 2 ; 3 ; 5 ; 7 ; 11 ; 13 ; 17 ; 19 → 8/20 = 2/5<br>c) 3 ; 5 ; 6 ; 9 ; 10 ; 12 ; 15 ; 18 ; 20 → 9/20</span>`},
+{titre:"Le sachet de bonbons",q:`Un sachet contient 12 bonbons à la fraise et 8 au citron.`,
+p:[{l:"a) Probabilité de piocher un bonbon à la fraise :",t:"num",a:3/5},{l:"b) Combien de bonbons à la menthe faut-il ajouter pour que la probabilité de piocher un bonbon à la fraise soit 1/3 ?",t:"num",a:16,u:"bonbons"}],
+h:"Appelle x le nombre de bonbons à la menthe ajoutés : la probabilité devient 12 / (20 + x).",s:`<span class="calc">a) 12/20 = 3/5<br>b) ${f(12,"20 + <i>x</i>")} = ${f(1,3)} ⇔ 20 + <i>x</i> = 36 ⇔ <i>x</i> = 16</span>`}
+]},
+
+/* ---------------- 10. PYTHAGORE ---------------- */
+{id:"pythagore",theme:"geo",titre:"Théorème de Pythagore",sous:"Calculer une longueur, démontrer qu'un triangle est rectangle",
+cours:[
+{t:"Racine carrée",h:`
+<div class="box def"><b>Définition</b>La <b>racine carrée</b> d'un nombre positif <span class="m"><i>a</i></span>, notée <span class="m">${sq("<i>a</i>")}</span>, est le nombre positif dont le carré est <span class="m"><i>a</i></span>.</div>
+<div class="box ex"><b>Exemples</b><span class="calc">${sq("49")} = 7 &nbsp;&nbsp; ${sq("100")} = 10 &nbsp;&nbsp; ${sq("65")} ≈ 8,06 (calculatrice)</span></div>`},
+{t:"Le théorème",h:`
+<div class="box def"><b>Vocabulaire</b>Dans un triangle rectangle, l'<b>hypoténuse</b> est le côté opposé à l'angle droit. C'est le plus long côté.</div>
+<div class="figure"><svg viewBox="0 0 300 200" width="300" role="img" aria-label="Triangle ABC rectangle en A">
+<polygon class="s" points="50,160 250,160 50,40"/><line class="h" x1="250" y1="160" x2="50" y2="40"/>
+<polyline class="s" points="50,145 65,145 65,160" style="stroke-width:1.5"/>
+<text class="t" x="30" y="178">A</text><text class="t" x="255" y="178">B</text><text class="t" x="34" y="36">C</text>
+<text class="ta" x="160" y="90">hypoténuse</text></svg></div>
+<div class="box prop"><b>Théorème de Pythagore</b>Si un triangle ABC est rectangle en A, alors <span class="calc">BC<sup>2</sup> = AB<sup>2</sup> + AC<sup>2</sup></span>Le carré de l'hypoténuse est égal à la somme des carrés des deux autres côtés.</div>`},
+{t:"Calculer une longueur",h:`
+<div class="box ex"><b>Calcul de l'hypoténuse</b>ABC est rectangle en A, AB = 6 cm, AC = 8 cm.
+<span class="calc">BC<sup>2</sup> = AB<sup>2</sup> + AC<sup>2</sup> = 36 + 64 = 100<br>BC = ${sq("100")} = 10 cm</span></div>
+<div class="box ex"><b>Calcul d'un côté de l'angle droit</b>DEF est rectangle en D, EF = 13 cm, DE = 5 cm.
+<span class="calc">EF<sup>2</sup> = DE<sup>2</sup> + DF<sup>2</sup><br>169 = 25 + DF<sup>2</sup><br>DF<sup>2</sup> = 144, donc DF = 12 cm</span></div>`},
+{t:"Réciproque et contraposée",h:`
+<div class="box prop"><b>Réciproque</b>Si dans un triangle ABC on a <span class="m">BC<sup>2</sup> = AB<sup>2</sup> + AC<sup>2</sup></span>, alors le triangle est <b>rectangle en A</b>.</div>
+<div class="box prop"><b>Contraposée</b>Si <span class="m">BC<sup>2</sup> ≠ AB<sup>2</sup> + AC<sup>2</sup></span> (BC étant le plus grand côté), alors le triangle <b>n'est pas rectangle</b>.</div>
+<div class="box ex box meth"><b>Méthode</b>On calcule <b>séparément</b> le carré du plus grand côté et la somme des carrés des deux autres, puis on compare.<br>Triangle 20 ; 21 ; 29 : 29² = 841 et 20² + 21² = 400 + 441 = 841. Égalité : le triangle est rectangle.</div>`}
+],
+defs:[
+{t:"Hypoténuse",d:"Dans un triangle rectangle, le côté opposé à l'angle droit. C'est le plus long côté.",e:"Triangle rectangle en A : l'hypoténuse est [BC]."},
+{t:"Carré d'un nombre",d:"Produit du nombre par lui-même.",e:"7² = 49"},
+{t:"Racine carrée",d:"√a est le nombre positif dont le carré vaut a (a ≥ 0).",e:"√81 = 9"},
+{t:"Théorème de Pythagore",d:"Si ABC est rectangle en A, alors BC² = AB² + AC².",e:"3² + 4² = 5²"},
+{t:"Réciproque",d:"Si BC² = AB² + AC², alors ABC est rectangle en A. Sert à prouver qu'un triangle est rectangle.",e:"Vérifier une équerre."},
+{t:"Contraposée",d:"Si BC² ≠ AB² + AC² ([BC] le plus long), le triangle n'est pas rectangle.",e:"Triangle 9 ; 12 ; 16"}
+],
+qcm:[
+{q:"Dans un triangle ABC rectangle en B, l'hypoténuse est :",o:["[AB]","[BC]","[AC]","On ne peut pas savoir"],a:2,e:"L'hypoténuse est le côté opposé à l'angle droit B : c'est [AC]."},
+{q:"Si ABC est rectangle en A, alors :",o:["AB² = BC² + AC²","BC² = AB² + AC²","BC = AB + AC","AC² = AB² + BC²"],a:1,e:"L'hypoténuse est [BC], opposée à A."},
+{q:"Un triangle de côtés 3 cm, 4 cm et 5 cm est-il rectangle ?",o:["Oui","Non","Seulement s'il est isocèle","On ne peut pas savoir"],a:0,e:"5² = 25 et 3² + 4² = 9 + 16 = 25. D'après la réciproque, il est rectangle."},
+{q:`Combien vaut ${m(sq("49"))} ?`,o:["24,5","7","−7","2 401"],a:1,e:"7² = 49 et la racine carrée est positive."}
+],
+exos:[
+{q:"ABC est rectangle en A avec AB = 6 cm et AC = 8 cm. Calcule BC.",p:[{l:"BC =",t:"num",a:10,u:"cm"}],h:"BC est l'hypoténuse.",s:`<span class="calc">BC<sup>2</sup> = 36 + 64 = 100, BC = 10 cm</span>`},
+{q:"DEF est rectangle en D avec EF = 13 cm et DE = 5 cm. Calcule DF.",p:[{l:"DF =",t:"num",a:12,u:"cm"}],h:"L'hypoténuse est [EF] : DF² = EF² − DE².",s:`<span class="calc">DF<sup>2</sup> = 169 − 25 = 144, DF = 12 cm</span>`},
+{q:"MNP est rectangle en M avec MN = 4 cm et MP = 7 cm. Calcule NP arrondi au dixième.",p:[{l:"NP ≈",t:"num",a:8.1,tol:0.051,u:"cm"}],h:"NP² = 16 + 49.",s:`<span class="calc">NP<sup>2</sup> = 65, NP = ${sq("65")} ≈ 8,1 cm</span>`},
+{q:"Un triangle a pour côtés 9 cm, 12 cm et 16 cm. Est-il rectangle ?",p:[{t:"ch",o:["Oui","Non"],a:1}],h:"Compare 16² et 9² + 12².",s:"16² = 256 et 9² + 12² = 81 + 144 = 225. 256 ≠ 225 : d'après la contraposée, il n'est pas rectangle."},
+{q:"Un triangle a pour côtés 20 cm, 21 cm et 29 cm. Est-il rectangle ?",p:[{t:"ch",o:["Oui","Non"],a:0}],h:"Le plus grand côté est 29.",s:"29² = 841 et 20² + 21² = 400 + 441 = 841. Égalité : d'après la réciproque, il est rectangle."}
+],
+pbs:[
+{titre:"L'échelle contre le mur",q:`Une échelle de 5 m est appuyée contre un mur vertical. Son pied est à 1,4 m du mur, sur un sol horizontal.`,
+p:[{l:"À quelle hauteur le haut de l'échelle touche-t-il le mur ?",t:"num",a:4.8,u:"m"}],
+h:"Le mur et le sol forment un angle droit. L'échelle est l'hypoténuse.",s:`<span class="calc">h<sup>2</sup> = 5<sup>2</sup> − 1,4<sup>2</sup> = 25 − 1,96 = 23,04<br>h = ${sq("23,04")} = 4,8 m</span>`},
+{titre:"La taille d'un écran",q:`La taille d'un écran est la longueur de sa diagonale, souvent en pouces (1 pouce = 2,54 cm). Un écran mesure 80 cm de large et 45 cm de haut.`,
+p:[{l:"a) Longueur de la diagonale, arrondie au dixième :",t:"num",a:91.8,tol:0.051,u:"cm"},{l:"b) Taille en pouces, arrondie à l'unité :",t:"num",a:36,u:"pouces"}],
+h:"La largeur et la hauteur forment un angle droit.",s:`<span class="calc">a) d<sup>2</sup> = 80<sup>2</sup> + 45<sup>2</sup> = 6 400 + 2 025 = 8 425, d ≈ 91,8 cm<br>b) 91,8 ÷ 2,54 ≈ 36 pouces</span>`},
+{titre:"Le cadre du menuisier",q:`Un menuisier fabrique un cadre de 60 cm sur 80 cm. Il mesure la diagonale : 1 m exactement.`,
+p:[{l:"Le cadre a-t-il des angles droits ?",t:"ch",o:["Oui","Non"],a:0}],h:"Convertis 1 m en cm.",s:"100² = 10 000 et 60² + 80² = 3 600 + 6 400 = 10 000. D'après la réciproque du théorème de Pythagore, l'angle est droit."}
+]},
+
+/* ---------------- 11. THALÈS ---------------- */
+{id:"thales",theme:"geo",titre:"Théorème de Thalès",sous:"Droites parallèles dans un triangle",
+cours:[
+{t:"La configuration",h:`
+<p>ABC est un triangle. M est un point du segment [AB] et N un point du segment [AC] tels que les droites (MN) et (BC) sont <b>parallèles</b>.</p>
+<div class="figure"><svg viewBox="0 0 300 200" width="300" role="img" aria-label="Triangle ABC avec MN parallèle à BC">
+<polygon class="s" points="150,20 30,180 270,180"/><line class="h" x1="102" y1="84" x2="198" y2="84"/>
+<text class="t" x="143" y="15">A</text><text class="t" x="12" y="190">B</text><text class="t" x="275" y="190">C</text>
+<text class="t" x="80" y="84">M</text><text class="t" x="204" y="84">N</text></svg></div>
+<p>Le triangle AMN est une <b>réduction</b> du triangle ABC.</p>`},
+{t:"Le théorème",h:`
+<div class="box prop"><b>Théorème de Thalès</b>Si M appartient à [AB], N appartient à [AC] et (MN) // (BC), alors
+<span class="calc">${f("AM","AB")} = ${f("AN","AC")} = ${f("MN","BC")}</span>Les longueurs des côtés du triangle AMN sont proportionnelles à celles du triangle ABC.</div>
+<div class="tbl"><table><tr><th>Triangle AMN</th><td>AM</td><td>AN</td><td>MN</td></tr><tr><th>Triangle ABC</th><td>AB</td><td>AC</td><td>BC</td></tr></table></div>`},
+{t:"Calculer une longueur",h:`
+<div class="box ex"><b>Exemple</b>AM = 3 cm, AB = 5 cm, AC = 10 cm, BC = 8 cm, (MN) // (BC).
+<span class="calc">${f(3,5)} = ${f("AN",10)} = ${f("MN",8)}<br>AN = ${f("3 × 10",5)} = 6 cm &nbsp;&nbsp; MN = ${f("3 × 8",5)} = 4,8 cm</span></div>
+<div class="box warn"><b>Attention</b>Les points correspondants doivent être alignés : on compare toujours un côté du petit triangle au côté <b>correspondant</b> du grand. On ne met jamais MB au numérateur avec AB au dénominateur.</div>`},
+{t:"Rédaction type",h:`
+<p class="calc" style="font-family:var(--f-body);font-size:1rem">Dans le triangle ABC, M ∈ [AB], N ∈ [AC] et les droites (MN) et (BC) sont parallèles.<br>D'après le théorème de Thalès : ${f("AM","AB")} = ${f("AN","AC")} = ${f("MN","BC")}.<br>On remplace par les longueurs connues, puis on utilise le produit en croix.</p>`}
+],
+defs:[
+{t:"Droites parallèles",d:"Deux droites qui ne se coupent jamais. Notation : (MN) // (BC).",e:"Les rails d'une voie ferrée."},
+{t:"Théorème de Thalès",d:"Si M ∈ [AB], N ∈ [AC] et (MN) // (BC), alors AM/AB = AN/AC = MN/BC.",e:"Sert à calculer des longueurs."},
+{t:"Réduction",d:"Figure dont toutes les longueurs sont multipliées par un même nombre k compris entre 0 et 1.",e:"AMN est une réduction de ABC."},
+{t:"Coefficient de réduction",d:"Le nombre k = AM/AB par lequel on multiplie les longueurs du grand triangle.",e:"k = 0,4"},
+{t:"Côtés correspondants",d:"Côtés qui se « font face » dans les deux triangles : [AM] et [AB], [AN] et [AC], [MN] et [BC].",e:"Toujours sur la même droite ou parallèles."}
+],
+qcm:[
+{q:"Pour appliquer le théorème de Thalès dans le triangle ABC avec M ∈ [AB] et N ∈ [AC], il faut :",o:["que ABC soit rectangle","que (MN) // (BC)","que AM = AN","que M soit le milieu de [AB]"],a:1,e:"La condition indispensable est le parallélisme de (MN) et (BC)."},
+{q:"Quelle égalité est correcte ?",o:["AM/AB = AN/AC = MN/BC","AM/MB = AN/AC = MN/BC","AB/AM = AN/AC = BC/MN","AM/AB = AC/AN"],a:0,e:"On compare chaque côté du petit triangle au côté correspondant du grand, toujours dans le même sens."},
+{q:"Si AM/AB = 1/3 et BC = 12 cm, alors MN vaut :",o:["36 cm","4 cm","3 cm","9 cm"],a:1,e:"MN/BC = 1/3, donc MN = 12/3 = 4 cm."},
+{q:"Dans la configuration de Thalès, le triangle AMN est :",o:["un agrandissement de ABC","une réduction de ABC","toujours isocèle","toujours rectangle"],a:1,e:"Ses côtés sont proportionnels à ceux de ABC avec un coefficient inférieur à 1."}
+],
+exos:[
+{q:"Dans le triangle ABC, M ∈ [AB], N ∈ [AC] et (MN) // (BC). AM = 3 cm, AB = 5 cm, AC = 10 cm. Calcule AN.",p:[{l:"AN =",t:"num",a:6,u:"cm"}],h:"AM/AB = AN/AC.",s:`<span class="calc">AN = ${f("3 × 10",5)} = 6 cm</span>`},
+{q:"Même figure, avec BC = 8 cm. Calcule MN.",p:[{l:"MN =",t:"num",a:4.8,u:"cm"}],h:"AM/AB = MN/BC.",s:`<span class="calc">MN = ${f("3 × 8",5)} = 4,8 cm</span>`},
+{q:"Dans une configuration de Thalès, AM = 4 cm, AB = 10 cm et MN = 6 cm. Calcule BC.",p:[{l:"BC =",t:"num",a:15,u:"cm"}],h:"4/10 = 6/BC.",s:`<span class="calc">BC = ${f("10 × 6",4)} = 15 cm</span>`},
+{q:"Dans une configuration de Thalès, AN = 7,5 cm, AC = 12,5 cm et AB = 15 cm. Calcule AM.",p:[{l:"AM =",t:"num",a:9,u:"cm"}],h:"AM/15 = 7,5/12,5.",s:`<span class="calc">AM = ${f("15 × 7,5","12,5")} = 9 cm</span>`},
+{q:"Avec AM = 4 cm et AB = 10 cm, quel est le coefficient de réduction (en décimal) ?",p:[{l:"k =",t:"num",a:0.4}],h:"k = AM/AB.",s:"k = 4/10 = 0,4."}
+],
+pbs:[
+{titre:"La hauteur de l'arbre",q:`Au même moment, un bâton vertical de 1,5 m projette une ombre de 2 m, et un arbre projette une ombre de 12 m. Les rayons du soleil sont parallèles.`,
+p:[{l:"Quelle est la hauteur de l'arbre ?",t:"num",a:9,u:"m"}],h:"Le bâton et l'arbre sont parallèles (tous deux verticaux). Les longueurs sont proportionnelles : hauteur/ombre est la même.",s:`<span class="calc">${f("<i>h</i>","1,5")} = ${f(12,2)}, donc <i>h</i> = 1,5 × 6 = 9 m</span>`},
+{titre:"La poutre de renfort",q:`La charpente d'un abri a la forme d'un triangle ABC. Une poutre [MN] est fixée parallèlement à [BC], avec M ∈ [AB] et N ∈ [AC]. On sait que AM = 2,4 m, MB = 1,6 m et BC = 5 m.`,
+p:[{l:"a) Longueur AB :",t:"num",a:4,u:"m"},{l:"b) Longueur de la poutre MN :",t:"num",a:3,u:"m"}],h:"AB = AM + MB. Puis applique le théorème de Thalès.",s:`<span class="calc">a) AB = 2,4 + 1,6 = 4 m<br>b) ${f("MN",5)} = ${f("2,4",4)}, MN = ${f("2,4 × 5",4)} = 3 m</span>`}
+]},
+
+/* ---------------- 12. TRANSFORMATIONS ---------------- */
+{id:"transformations",theme:"geo",titre:"Translations et rotations",sous:"Transformer des figures dans le plan",
+cours:[
+{t:"Rappel : les symétries",h:`
+<p>La <b>symétrie axiale</b> (par rapport à une droite) et la <b>symétrie centrale</b> (par rapport à un point) transforment une figure en une figure superposable.</p>`},
+{t:"La translation",h:`
+<div class="box def"><b>Définition</b>La translation qui transforme A en B fait <b>glisser</b> toute figure :
+<ul><li>dans la <b>direction</b> de la droite (AB),</li><li>dans le <b>sens</b> de A vers B,</li><li>d'une <b>longueur</b> égale à AB.</li></ul></div>
+<p>Si M' est l'image de M, alors ABM'M est un <b>parallélogramme</b> (éventuellement aplati).</p>
+<div class="box ex"><b>Dans un repère</b>La translation qui transforme A(1 ; 2) en B(4 ; 3) décale de +3 en abscisse et +1 en ordonnée. L'image de C(−2 ; 0) est C'(1 ; 1).</div>`},
+{t:"La rotation",h:`
+<div class="box def"><b>Définition</b>La rotation de <b>centre</b> O, d'<b>angle</b> α, dans un <b>sens</b> donné fait <b>tourner</b> la figure autour de O. Le point M' image de M vérifie :
+<span class="calc">OM' = OM &nbsp; et &nbsp; angle MOM' = α</span></div>
+<p>Le sens inverse des aiguilles d'une montre est appelé sens direct.</p>
+<div class="box ex"><b>Cas particulier</b>Une rotation de 180° est une <b>symétrie centrale</b>.</div>
+<div class="box ex"><b>Dans un repère</b>Rotation de centre O, 90°, sens inverse des aiguilles d'une montre : M(<i>x</i> ; <i>y</i>) a pour image M'(−<i>y</i> ; <i>x</i>).<br>Rotation de 180° : M(<i>x</i> ; <i>y</i>) a pour image M'(−<i>x</i> ; −<i>y</i>).</div>`},
+{t:"Propriétés de conservation",h:`
+<div class="box prop"><b>Propriété</b>Les symétries, les translations et les rotations conservent :
+<ul><li>les <b>longueurs</b>, les <b>angles</b>, les <b>aires</b> ;</li><li>l'<b>alignement</b> et le <b>parallélisme</b>.</li></ul>L'image d'une figure est une figure superposable.</div>
+<p>Une translation transforme une droite en une droite <b>parallèle</b>.</p>`}
+],
+defs:[
+{t:"Translation",d:"Glissement défini par une direction, un sens et une longueur (par exemple « qui transforme A en B »).",e:"Un tapis roulant."},
+{t:"Rotation",d:"Transformation qui fait tourner une figure autour d'un centre, d'un angle donné, dans un sens donné.",e:"Les aiguilles d'une horloge."},
+{t:"Image",d:"Le point ou la figure obtenu après la transformation. On le note souvent avec un prime : M'.",e:"M' est l'image de M."},
+{t:"Centre de rotation",d:"Le point fixe autour duquel on tourne. C'est le seul point qui reste à sa place.",e:"Le centre de l'horloge."},
+{t:"Symétrie centrale",d:"Rotation d'angle 180°. O est le milieu de [MM'].",e:"Une hélice à deux pales."},
+{t:"Conservation",d:"Ces transformations ne changent ni les longueurs, ni les angles, ni les aires.",e:"Un carré reste un carré de même côté."}
+],
+qcm:[
+{q:"Une translation conserve-t-elle les longueurs ?",o:["Oui","Non","Seulement les longueurs horizontales","Elle les double"],a:0,e:"Translations, rotations et symétries conservent les longueurs, les angles et les aires."},
+{q:"La symétrie centrale correspond à une rotation de :",o:["90°","45°","180°","360°"],a:2,e:"Tourner d'un demi-tour autour de O revient à faire la symétrie de centre O."},
+{q:"Une translation est définie par :",o:["un centre et un angle","un point et son image","une droite","un seul point"],a:1,e:"La translation qui transforme A en B donne direction, sens et longueur."},
+{q:"L'image d'une droite (d) par une translation est :",o:["une droite perpendiculaire à (d)","une droite parallèle à (d)","un cercle","un segment"],a:1,e:"Une translation transforme une droite en une droite parallèle."}
+],
+exos:[
+{q:"La translation transforme A(1 ; 2) en B(4 ; 3). Quelles sont les coordonnées de l'image de C(−2 ; 0) ?",p:[{l:"abscisse :",t:"num",a:1},{l:"ordonnée :",t:"num",a:1}],h:"De A à B : on ajoute 3 à l'abscisse et 1 à l'ordonnée.",s:"C'(−2 + 3 ; 0 + 1) = C'(1 ; 1)."},
+{q:"Avec la même translation, quelle est l'image de D(0 ; −5) ?",p:[{l:"abscisse :",t:"num",a:3},{l:"ordonnée :",t:"num",a:-4}],h:"Même décalage : +3 et +1.",s:"D'(0 + 3 ; −5 + 1) = D'(3 ; −4)."},
+{q:"Rotation de centre O, d'angle 90°, sens inverse des aiguilles d'une montre. Image de E(3 ; 1) ?",p:[{l:"abscisse :",t:"num",a:-1},{l:"ordonnée :",t:"num",a:3}],h:"M(x ; y) a pour image M'(−y ; x).",s:"E'(−1 ; 3)."},
+{q:"Rotation de centre O d'angle 180°. Image de F(−4 ; 2) ?",p:[{l:"abscisse :",t:"num",a:4},{l:"ordonnée :",t:"num",a:-2}],h:"C'est la symétrie de centre O.",s:"F'(4 ; −2)."},
+{q:"Un triangle a une aire de 12 cm². Quelle est l'aire de son image par une rotation ?",p:[{t:"num",a:12,u:"cm²"}],h:"Que conserve une rotation ?",s:"Une rotation conserve les aires : 12 cm²."}
+],
+pbs:[
+{titre:"Le robot",q:`Un robot part du point P(0 ; 0). À chaque étape, il se déplace par la translation qui décale de 3 unités vers la droite et de 2 vers le haut.`,
+p:[{l:"a) Abscisse après 4 étapes :",t:"num",a:12},{l:"Ordonnée après 4 étapes :",t:"num",a:8},{l:"b) Combien d'étapes faut-il pour atteindre l'abscisse 27 ?",t:"num",a:9,u:"étapes"}],h:"Après n étapes, le robot est en (3n ; 2n).",s:`<span class="calc">a) (3 × 4 ; 2 × 4) = (12 ; 8)<br>b) 3<i>n</i> = 27, <i>n</i> = 9</span>`},
+{titre:"L'horloge",q:`L'aiguille des minutes d'une horloge effectue une rotation autour du centre du cadran.`,
+p:[{l:"a) De combien de degrés tourne-t-elle en 20 minutes ?",t:"num",a:120,u:"°"},{l:"b) Et en 1 h 45 min ?",t:"num",a:630,u:"°"}],h:"En 60 minutes, l'aiguille fait un tour complet de 360°. En 1 minute : 6°.",s:`<span class="calc">a) 20 × 6 = 120°<br>b) 105 min × 6 = 630° (un tour complet + 270°)</span>`}
+]},
+
+/* ---------------- 13. PYRAMIDES ET CÔNES ---------------- */
+{id:"solides",theme:"grandeurs",titre:"Pyramides et cônes",sous:"Solides, volumes et conversions",
+cours:[
+{t:"La pyramide",h:`
+<div class="box def"><b>Définition</b>Une <b>pyramide</b> est un solide dont :
+<ul><li>une face est un polygone, appelé <b>base</b> ;</li><li>les autres faces sont des <b>triangles</b> ayant un sommet commun, le <b>sommet</b> de la pyramide.</li></ul>
+La <b>hauteur</b> est le segment issu du sommet et perpendiculaire à la base.</div>
+<div class="figure"><svg viewBox="0 0 260 200" width="240" role="img" aria-label="Pyramide à base carrée">
+<polygon class="s" points="40,160 170,160 220,120 90,120" style="stroke-dasharray:0"/>
+<line class="s" x1="130" y1="20" x2="40" y2="160"/><line class="s" x1="130" y1="20" x2="170" y2="160"/><line class="s" x1="130" y1="20" x2="220" y2="120"/>
+<line class="s" x1="130" y1="20" x2="90" y2="120" style="stroke-dasharray:5 4"/>
+<line class="h" x1="130" y1="20" x2="130" y2="140" style="stroke-dasharray:5 4"/>
+<text class="t" x="124" y="14">S</text><text class="ta" x="136" y="95">h</text></svg></div>
+<p>Une pyramide à base carrée a 5 faces, 8 arêtes et 5 sommets.</p>`},
+{t:"Le cône de révolution",h:`
+<div class="box def"><b>Définition</b>Un <b>cône de révolution</b> est obtenu en faisant tourner un triangle rectangle autour d'un des côtés de l'angle droit. Sa <b>base</b> est un disque de rayon <span class="m"><i>r</i></span> ; sa <b>hauteur</b> <span class="m"><i>h</i></span> relie le sommet au centre de la base.</div>`},
+{t:"Volumes",h:`
+<div class="box prop"><b>Volume d'une pyramide ou d'un cône</b><span class="calc"><i>V</i> = ${f("aire de la base × hauteur",3)}</span>
+Pour un cône : <span class="calc"><i>V</i> = ${f("π × <i>r</i><sup>2</sup> × <i>h</i>",3)}</span></div>
+<div class="box ex"><b>Exemple</b>Pyramide à base carrée de côté 6 cm et de hauteur 10 cm :
+<span class="calc"><i>V</i> = ${f("6 × 6 × 10",3)} = ${f(360,3)} = 120 cm<sup>3</sup></span></div>
+<div class="box warn"><b>Attention</b>Le volume d'une pyramide est le tiers du volume du prisme (ou du pavé) de même base et de même hauteur.</div>`},
+{t:"Unités de volume et de contenance",h:`
+<div class="tbl"><table><tr><th>m³</th><th>dm³</th><th>cm³</th></tr><tr><td>1 m³ = 1 000 L</td><td>1 dm³ = 1 L</td><td>1 cm³ = 1 mL</td></tr></table></div>
+<p>On passe d'une unité de volume à la suivante en multipliant ou divisant par <b>1 000</b>.</p>
+<div class="box ex"><b>Exemples</b>2,5 m³ = 2 500 dm³ = 2 500 L &nbsp;·&nbsp; 450 cm³ = 450 mL = 0,45 L</div>`}
+],
+defs:[
+{t:"Pyramide",d:"Solide dont la base est un polygone et dont les faces latérales sont des triangles qui ont un sommet commun.",e:"La pyramide du Louvre."},
+{t:"Cône de révolution",d:"Solide engendré par la rotation d'un triangle rectangle autour d'un côté de l'angle droit. Sa base est un disque.",e:"Un cornet de glace."},
+{t:"Hauteur",d:"Segment issu du sommet, perpendiculaire au plan de la base. Sa longueur est h.",e:"Dans une pyramide régulière, elle arrive au centre de la base."},
+{t:"Pyramide régulière",d:"Pyramide dont la base est un polygone régulier et dont la hauteur passe par le centre de la base.",e:"Base carrée, faces triangulaires identiques."},
+{t:"Volume",d:"Mesure de l'espace occupé par un solide. Pyramide et cône : aire de base × hauteur ÷ 3.",e:"En cm³, dm³, m³."},
+{t:"Litre",d:"Unité de contenance : 1 L = 1 dm³.",e:"1 000 L = 1 m³"}
+],
+qcm:[
+{q:"Le volume d'une pyramide est égal à :",o:["aire de la base × hauteur","aire de la base × hauteur ÷ 3","aire de la base × hauteur ÷ 2","périmètre de la base × hauteur"],a:1,e:"C'est le tiers du volume du prisme de même base et même hauteur."},
+{q:"Combien de faces possède une pyramide à base carrée ?",o:["4","5","6","8"],a:1,e:"La base carrée + 4 faces latérales triangulaires."},
+{q:"1 dm³ correspond à :",o:["1 mL","10 L","1 L","100 L"],a:2,e:"1 dm³ = 1 L."},
+{q:"La base d'un cône de révolution est :",o:["un triangle","un disque","un carré","une sphère"],a:1,e:"C'est un disque."}
+],
+exos:[
+{q:"Calcule le volume d'une pyramide à base carrée de côté 6 cm et de hauteur 10 cm.",p:[{t:"num",a:120,u:"cm³"}],h:"Aire de la base : 6 × 6.",s:`<span class="calc">${f("36 × 10",3)} = 120 cm<sup>3</sup></span>`},
+{q:"Calcule le volume d'une pyramide dont la base est un rectangle de 4 cm sur 9 cm et la hauteur 5 cm.",p:[{t:"num",a:60,u:"cm³"}],h:"Aire de la base : 4 × 9 = 36 cm².",s:`<span class="calc">${f("36 × 5",3)} = 60 cm<sup>3</sup></span>`},
+{q:"Calcule le volume d'un cône de rayon 3 cm et de hauteur 8 cm, arrondi au dixième.",p:[{t:"num",a:75.4,tol:0.051,u:"cm³"}],h:"V = π × r² × h ÷ 3.",s:`<span class="calc">${f("π × 9 × 8",3)} = 24π ≈ 75,4 cm<sup>3</sup></span>`},
+{q:"Convertis 2,5 m³ en litres.",p:[{t:"num",a:2500,u:"L"}],h:"1 m³ = 1 000 L.",s:"2,5 × 1 000 = 2 500 L."},
+{q:"Convertis 450 cm³ en litres.",p:[{t:"num",a:0.45,u:"L"}],h:"1 cm³ = 1 mL et 1 L = 1 000 mL.",s:"450 cm³ = 450 mL = 0,45 L."},
+{q:"Une pyramide a un volume de 80 cm³ et une base d'aire 24 cm². Quelle est sa hauteur ?",p:[{t:"num",a:10,u:"cm"}],h:"80 = 24 × h ÷ 3, donc 24 × h = 240.",s:`<span class="calc"><i>h</i> = ${f("3 × 80",24)} = 10 cm</span>`}
+],
+pbs:[
+{titre:"La pyramide du Louvre",q:`La pyramide du Louvre est une pyramide à base carrée d'environ 35 m de côté et de 21,6 m de hauteur.`,
+p:[{l:"a) Aire de la base :",t:"num",a:1225,u:"m²"},{l:"b) Volume de la pyramide :",t:"num",a:8820,u:"m³"}],h:"35 × 35, puis aire × hauteur ÷ 3.",s:`<span class="calc">a) 35 × 35 = 1 225 m²<br>b) ${f("1 225 × 21,6",3)} = 8 820 m<sup>3</sup></span>`},
+{titre:"Les cornets de glace",q:`Un cornet de glace a la forme d'un cône de 2,5 cm de rayon et 12 cm de hauteur. On le remplit entièrement de glace, sans dépasser.`,
+p:[{l:"a) Volume d'un cornet, arrondi au cm³ :",t:"num",a:79,u:"cm³"},{l:"b) Combien de cornets peut-on remplir entièrement avec 2 L de glace ?",t:"num",a:25,u:"cornets"}],h:"2 L = 2 000 cm³. Le nombre de cornets complets est un entier.",s:`<span class="calc">a) ${f("π × 2,5<sup>2</sup> × 12",3)} = 25π ≈ 78,5 ≈ 79 cm<sup>3</sup><br>b) 2 000 ÷ 78,54 ≈ 25,5, donc 25 cornets complets</span>`}
+]},
+
+/* ---------------- 14. VITESSE ---------------- */
+{id:"vitesse",theme:"grandeurs",titre:"Vitesse et durées",sous:"Grandeurs composées et conversions",
+cours:[
+{t:"Vitesse moyenne",h:`
+<div class="box def"><b>Définition</b>La vitesse moyenne d'un mobile qui parcourt une distance <span class="m"><i>d</i></span> pendant une durée <span class="m"><i>t</i></span> est :
+<span class="calc"><i>v</i> = ${f("<i>d</i>","<i>t</i>")} &nbsp;&nbsp; donc &nbsp;&nbsp; <i>d</i> = <i>v</i> × <i>t</i> &nbsp;&nbsp; et &nbsp;&nbsp; <i>t</i> = ${f("<i>d</i>","<i>v</i>")}</span></div>
+<p>C'est une <b>grandeur quotient</b> : elle s'exprime en km/h, en m/s…</p>
+<div class="box ex"><b>Exemple</b>Une voiture parcourt 150 km en 2 h : <span class="m"><i>v</i> = 150 ÷ 2 = 75 km/h</span>.</div>
+<p>À vitesse constante, la distance est <b>proportionnelle</b> à la durée.</p>`},
+{t:"Durées en écriture décimale",h:`
+<div class="box warn"><b>Attention</b>1 h = 60 min, et non 100 min. Donc 1,5 h = 1 h 30 min, et pas 1 h 50 min.</div>
+<div class="tbl"><table><tr><th>Minutes</th><td>6</td><td>12</td><td>15</td><td>20</td><td>30</td><td>45</td></tr><tr><th>Heures</th><td>0,1</td><td>0,2</td><td>0,25</td><td>${f(1,3)}</td><td>0,5</td><td>0,75</td></tr></table></div>
+<div class="box ex"><b>Exemple</b>À 90 km/h pendant 2 h 20 min : 2 h 20 min = ${f(7,3)} h, donc <span class="m"><i>d</i> = 90 × ${f(7,3)} = 210 km</span>.</div>`},
+{t:"Changer d'unité",h:`
+<div class="box prop"><b>km/h ↔ m/s</b>1 km/h = ${f("1 000 m","3 600 s")} = ${f(1,"3,6")} m/s.<br>
+Pour passer de km/h en m/s, on <b>divise par 3,6</b> ; de m/s en km/h, on <b>multiplie par 3,6</b>.</div>
+<div class="box ex"><b>Exemples</b>36 km/h = 10 m/s &nbsp;·&nbsp; 25 m/s = 90 km/h</div>`}
+],
+defs:[
+{t:"Vitesse moyenne",d:"Quotient de la distance parcourue par la durée du parcours : v = d / t.",e:"150 km en 2 h : 75 km/h"},
+{t:"Grandeur quotient",d:"Grandeur obtenue en divisant deux grandeurs ; son unité est un quotient d'unités.",e:"km/h, €/kg, L/min"},
+{t:"Mouvement uniforme",d:"Mouvement à vitesse constante : la distance est proportionnelle à la durée.",e:"Un TGV en pleine ligne."},
+{t:"Heure décimale",d:"Durée exprimée en heures avec une virgule. 0,1 h = 6 min.",e:"1,25 h = 1 h 15 min"},
+{t:"Conversion km/h → m/s",d:"On divise par 3,6 (car 1 h = 3 600 s et 1 km = 1 000 m).",e:"72 km/h = 20 m/s"}
+],
+qcm:[
+{q:"1 h 30 min s'écrit en heures :",o:["1,3 h","1,5 h","1,30 h","1,05 h"],a:1,e:"30 min = la moitié d'une heure = 0,5 h."},
+{q:"36 km/h correspond à :",o:["10 m/s","3,6 m/s","129,6 m/s","100 m/s"],a:0,e:"36 ÷ 3,6 = 10 m/s."},
+{q:"La formule de la vitesse moyenne est :",o:["v = d × t","v = t / d","v = d / t","v = d + t"],a:2,e:"Vitesse = distance ÷ durée."},
+{q:"0,2 h correspond à :",o:["20 min","12 min","2 min","0,2 min"],a:1,e:"0,2 × 60 = 12 min."}
+],
+exos:[
+{q:"Une voiture parcourt 150 km en 2 h. Quelle est sa vitesse moyenne ?",p:[{t:"num",a:75,u:"km/h"}],h:"v = d ÷ t.",s:"150 ÷ 2 = 75 km/h."},
+{q:"Un car roule à 90 km/h pendant 2 h 20 min. Quelle distance parcourt-il ?",p:[{t:"num",a:210,u:"km"}],h:"20 min = 1/3 h. Ou : en 20 min, il parcourt le tiers de 90 km.",s:"2 h → 180 km ; 20 min → 30 km. Total : 210 km."},
+{q:"Combien de minutes faut-il pour parcourir 45 km à 30 km/h ?",p:[{t:"num",a:90,u:"min"}],h:"t = d ÷ v donne des heures.",s:"45 ÷ 30 = 1,5 h = 90 min."},
+{q:"Convertis 25 m/s en km/h.",p:[{t:"num",a:90,u:"km/h"}],h:"Multiplie par 3,6.",s:"25 × 3,6 = 90 km/h."},
+{q:"Un sprinteur court 100 m en 10 s. Quelle est sa vitesse moyenne en km/h ?",p:[{t:"num",a:36,u:"km/h"}],h:"Calcule d'abord en m/s.",s:"100 ÷ 10 = 10 m/s ; 10 × 3,6 = 36 km/h."}
+],
+pbs:[
+{titre:"Le TGV",q:`Un TGV part de Paris à 8 h 12 et arrive à Lyon à 10 h 12. Il parcourt 465 km.`,
+p:[{l:"a) Durée du trajet :",t:"num",a:2,u:"h"},{l:"b) Vitesse moyenne :",t:"num",a:232.5,u:"km/h"}],h:"Calcule la durée en faisant la différence des horaires.",s:`<span class="calc">a) 10 h 12 − 8 h 12 = 2 h<br>b) 465 ÷ 2 = 232,5 km/h</span>`},
+{titre:"L'aller-retour à vélo",q:`Un cycliste fait un aller de 30 km à 20 km/h, puis revient par le même chemin à 30 km/h.`,
+p:[{l:"a) Durée de l'aller :",t:"num",a:1.5,u:"h"},{l:"b) Durée du retour :",t:"num",a:1,u:"h"},{l:"c) Vitesse moyenne sur l'ensemble du trajet :",t:"num",a:24,u:"km/h"}],
+h:"La vitesse moyenne n'est pas la moyenne des vitesses : divise la distance totale par la durée totale.",s:`<span class="calc">a) 30 ÷ 20 = 1,5 h<br>b) 30 ÷ 30 = 1 h<br>c) 60 km ÷ 2,5 h = 24 km/h (et non 25 km/h)</span>`}
+]}
+];
+
+/* ================= Progression (stockée dans ce navigateur) ================= */
+const KEY="maths4e-progress-v1";
+let prog={};
+try{prog=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){prog={}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(prog))}catch(e){}}
+function keysOf(ch){
+  const k=[];
+  ch.qcm.forEach((_,i)=>k.push(`${ch.id}:q:${i}`));
+  ch.exos.forEach((e,i)=>e.p.forEach((_,j)=>k.push(`${ch.id}:e:${i}:${j}`)));
+  ch.pbs.forEach((e,i)=>e.p.forEach((_,j)=>k.push(`${ch.id}:p:${i}:${j}`)));
+  return k;
+}
+function stat(ch,prefix){
+  const ks=keysOf(ch).filter(k=>!prefix||k.startsWith(`${ch.id}:${prefix}:`));
+  const done=ks.filter(k=>prog[k]===1).length;
+  return {done,total:ks.length,pct:ks.length?Math.round(100*done/ks.length):0};
+}
+
+/* ================= Vérification des réponses ================= */
+const gcd=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b]}return a};
+function clean(s){return s.replace(/\s+/g,"").replace(/[−–]/g,"-").replace(/,/g,".")}
+function parseNum(raw){
+  let s=clean(raw).replace(/^[a-z]+=/i,"").replace(/[^0-9.\/\-]+$/,"");
+  if(!s) return null;
+  const fr=s.match(/^(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)$/);
+  if(fr){const d=parseFloat(fr[2]);if(d===0)return null;return {v:parseFloat(fr[1])/d,fr:[+fr[1],+fr[2]]}}
+  if(/^-?(\d+\.?\d*|\.\d+)$/.test(s)) return {v:parseFloat(s)};
+  return null;
+}
+function parseExpr(src){
+  let s=src.toLowerCase().replace(/\s+/g,"").replace(/[−–]/g,"-").replace(/[×·]/g,"*").replace(/÷/g,"/").replace(/,/g,".").replace(/²/g,"^2").replace(/³/g,"^3");
+  s=s.replace(/^[a-z]\(x\)=|^[a-wyz]=/,"");
+  if(!s||!/^[0-9x+\-*/().^]+$/.test(s)) throw new Error("car");
+  let i=0;
+  const expr=()=>{let f=term();while(s[i]==="+"||s[i]==="-"){const o=s[i++],g=term(),a=f;f=o==="+"?x=>a(x)+g(x):x=>a(x)-g(x)}return f};
+  const term=()=>{let f=unary();for(;;){const c=s[i];
+    if(c==="*"||c==="/"){i++;const g=unary(),a=f;f=c==="*"?x=>a(x)*g(x):x=>a(x)/g(x)}
+    else if(c!==undefined&&/[0-9x.(]/.test(c)){const g=power(),a=f;f=x=>a(x)*g(x)}
+    else break}return f};
+  const unary=()=>{if(s[i]==="-"){i++;const g=unary();return x=>-g(x)}if(s[i]==="+"){i++;return unary()}return power()};
+  const power=()=>{const b=primary();if(s[i]==="^"){i++;const e=unary();return x=>Math.pow(b(x),e(x))}return b};
+  const primary=()=>{const c=s[i];
+    if(c==="("){i++;const f=expr();if(s[i]!==")")throw new Error("par");i++;return f}
+    if(c==="x"){i++;return x=>x}
+    const mm=s.slice(i).match(/^(\d+\.?\d*|\.\d+)/);if(mm){i+=mm[0].length;const v=parseFloat(mm[0]);return()=>v}
+    throw new Error("tok")};
+  const fn=expr(); if(i!==s.length) throw new Error("end");
+  return {fn,s};
+}
+function notReduced(s){
+  // découpe en termes de premier niveau et vérifie qu'aucun degré n'apparaît deux fois
+  const terms=[];let depth=0,cur="";
+  for(const c of s){if(c==="(")depth++;if(c===")")depth--;if((c==="+"||c==="-")&&depth===0&&cur){terms.push(cur);cur=c==="-"?"-":""}else cur+=c}
+  if(cur)terms.push(cur);
+  const deg=t=>/x\^2|x\*x/.test(t)?2:/x/.test(t)?1:0;
+  const seen={};for(const t of terms){const d=deg(t);if(seen[d])return true;seen[d]=1}
+  return false;
+}
+function check(part,raw){
+  if(!raw.trim()) return {st:"err",msg:"Écris ta réponse avant de vérifier."};
+  if(part.t==="num"){
+    const r=parseNum(raw);
+    if(!r) return {st:"err",msg:"Écris un nombre, par exemple −3,5 ou 7/4."};
+    const tol=part.tol??1e-9;
+    const ok=Math.abs(r.v-part.a)<=tol+1e-9*Math.abs(part.a);
+    if(!ok) return {st:"bad",msg:"Ce n'est pas la bonne valeur. Reprends ton calcul ou demande un indice."};
+    if(part.irr&&r.fr&&gcd(r.fr[0],r.fr[1])!==1) return {st:"warn",msg:"La valeur est juste, mais la fraction n'est pas irréductible. Simplifie-la."};
+    if(part.irr&&!r.fr&&!Number.isInteger(part.a)) return {st:"ok",msg:"Juste ! On attendait une fraction, mais l'écriture décimale est correcte."};
+    return {st:"ok",msg:"Bravo, c'est juste !"};
+  }
+  if(part.t==="expr"){
+    let u,e;
+    try{u=parseExpr(raw);e=parseExpr(part.a)}catch(err){return {st:"err",msg:"Expression illisible. Utilise x, +, −, des parenthèses et ^2 (ou ²) pour le carré."}}
+    const pts=[-2.3,0.7,1.9,3.1];
+    const eq=pts.every(x=>{const a=u.fn(x),b=e.fn(x);return isFinite(a)&&Math.abs(a-b)<1e-7*(1+Math.abs(b))});
+    if(!eq) return {st:"bad",msg:"Ton expression n'est pas égale à la bonne réponse. Vérifie les signes."};
+    if(part.form==="dev"&&u.s.includes("(")) return {st:"warn",msg:"L'expression est égale, mais elle n'est pas développée : il reste des parenthèses."};
+    if(part.form==="dev"&&notReduced(u.s)) return {st:"warn",msg:"L'expression est égale, mais elle n'est pas réduite : regroupe les termes semblables."};
+    if(part.form==="fact"&&!u.s.includes("(")) return {st:"warn",msg:"L'expression est égale, mais elle n'est pas factorisée : écris-la comme un produit."};
+    return {st:"ok",msg:"Bravo, c'est juste !"};
+  }
+  return {st:"err",msg:""};
+}
+
+/* ================= Rendu ================= */
+const $=s=>document.querySelector(s);
+const side=$("#side"), view=$("#view");
+const tc=ch=>`var(${THEMES[ch.theme].c})`;
+
+function renderSide(activeId){
+  let h=`<a class="brand" href="#"><b>Maths 4e</b><span>cours et exercices</span></a><nav class="nav">`;
+  for(const [tk,t] of Object.entries(THEMES)){
+    const list=CH.filter(c=>c.theme===tk); if(!list.length) continue;
+    h+=`<h4 style="--tc:var(${t.c})">${t.nom}</h4>`;
+    for(const c of list){const n=CH.indexOf(c)+1,st=stat(c);
+      h+=`<a href="#${c.id}" class="${c.id===activeId?"on":""}"><span class="n">${n}</span><span>${c.titre}</span><span class="pct ${st.pct===100?"full":""}">${st.pct ? st.pct+" %" : ""}</span></a>`}
+  }
+  side.innerHTML=h+"</nav>";
+}
+
+function renderHome(){
+  const all=CH.reduce((a,c)=>{const s=stat(c);a.d+=s.done;a.t+=s.total;return a},{d:0,t:0});
+  const pct=all.t?Math.round(100*all.d/all.t):0;
+  let h=`<section class="hero"><div class="eyebrow">Programme de 4e · cycle 4</div>
+  <h1>Les maths de <em>4e</em>, chapitre par chapitre</h1>
+  <p>Quatorze chapitres couvrent le programme. Chacun suit le même parcours : lis le cours, révise les définitions, vérifie que tu as compris, puis entraîne-toi sur des exercices et des problèmes corrigés.</p>
+  <div class="steps"><span>Cours</span><span>Définitions</span><span>Compréhension</span><span>Exercices</span><span>Problèmes</span></div>
+  <div class="overall"><b>${pct} %</b><div class="bar" aria-label="Progression globale"><i style="width:${pct}%"></i></div><span style="color:var(--muted);font-size:.85rem">${all.d} / ${all.t} réponses justes</span></div></section>`;
+  for(const [tk,t] of Object.entries(THEMES)){
+    const list=CH.filter(c=>c.theme===tk); if(!list.length) continue;
+    h+=`<section class="theme-sec" style="--tc:var(${t.c})"><h2>${t.nom}</h2><div class="cards">`;
+    for(const c of list){const st=stat(c),n=CH.indexOf(c)+1;
+      h+=`<a class="card" href="#${c.id}"><span class="num">Chapitre ${n}</span><h3>${c.titre}</h3><p>${c.sous}</p>
+      <div class="meta"><div class="bar"><i style="width:${st.pct}%"></i></div><span>${st.done}/${st.total}</span></div></a>`}
+    h+=`</div></section>`;
+  }
+  h+=`<div class="reset" id="resetZone"><span>Ta progression est enregistrée dans ce navigateur.</span><button class="linkbtn" id="resetBtn">Effacer ma progression</button></div>`;
+  view.innerHTML=h;
+  $("#resetBtn").onclick=()=>{
+    $("#resetZone").innerHTML=`<span>Effacer toutes tes réponses ?</span><button class="dangerbtn" id="resetYes">Oui, effacer</button><button class="linkbtn" id="resetNo">Annuler</button>`;
+    $("#resetYes").onclick=()=>{prog={};save();route()};
+    $("#resetNo").onclick=()=>route();
+  };
+}
+
+function badge(ch,p){const s=stat(ch,p);return `<span class="badge ${s.done===s.total?"full":""}">${s.done}/${s.total}</span>`}
+
+function renderChapter(ch,tab){
+  const i=CH.indexOf(ch),st=stat(ch);
+  let h=`<header class="ch-head" style="--tc:${tc(ch)}"><span class="chip">Chapitre ${i+1} · ${THEMES[ch.theme].nom}</span>
+  <h1>${ch.titre}</h1><p class="sub">${ch.sous}</p>
+  <div class="overall"><div class="bar"><i style="width:${st.pct}%"></i></div><span style="color:var(--muted);font-size:.85rem;font-variant-numeric:tabular-nums">${st.pct} % réussi</span></div></header>
+  <nav class="tabs" aria-label="Parties du chapitre">`;
+  for(const [k,l] of TABS){
+    const b=k==="comprehension"?badge(ch,"q"):k==="exercices"?badge(ch,"e"):k==="problemes"?badge(ch,"p"):"";
+    h+=`<a href="#${ch.id}-${k}" class="${k===tab?"on":""}">${l}${b}</a>`}
+  h+=`</nav><div id="pane"></div>`;
+  const prev=CH[i-1],next=CH[i+1];
+  const ti=TABS.findIndex(t=>t[0]===tab);
+  h+=`<div class="pager">`;
+  if(ti>0) h+=`<a href="#${ch.id}-${TABS[ti-1][0]}"><small>← Étape précédente</small>${TABS[ti-1][1]}</a>`;
+  else if(prev) h+=`<a href="#${prev.id}"><small>← Chapitre ${i}</small>${prev.titre}</a>`;
+  if(ti<TABS.length-1) h+=`<a class="nx" href="#${ch.id}-${TABS[ti+1][0]}"><small>Étape suivante →</small>${TABS[ti+1][1]}</a>`;
+  else if(next) h+=`<a class="nx" href="#${next.id}"><small>Chapitre ${i+2} →</small>${next.titre}</a>`;
+  h+=`</div>`;
+  view.innerHTML=h;
+  const pane=$("#pane");
+  if(tab==="cours") renderCours(ch,pane);
+  else if(tab==="definitions") renderDefs(ch,pane);
+  else if(tab==="comprehension") renderQcm(ch,pane);
+  else if(tab==="exercices") renderExos(ch,pane,"e");
+  else renderExos(ch,pane,"p");
+}
+
+function renderCours(ch,pane){
+  pane.innerHTML=`<article class="lesson">${ch.cours.map((s,i)=>`<section><h3><span class="k">${String.fromCharCode(65+i)}.</span>${s.t}</h3>${s.h}</section>`).join("")}</article>`;
+}
+
+function renderDefs(ch,pane){
+  pane.innerHTML=`<div class="defs-tools"><p>Essaie de te rappeler chaque définition, puis clique sur la carte pour vérifier.</p>
+  <div class="row"><button class="btn" id="showAll">Tout afficher</button><button class="btn" id="hideAll">Tout masquer</button></div></div>
+  <div class="defs">${ch.defs.map(d=>`<button class="dcard" aria-expanded="false"><span class="term">${d.t}</span><span class="hint">Afficher la définition</span>
+  <span class="body"><p>${d.d}</p>${d.e?`<p class="e"><b>Exemple :</b> ${d.e}</p>`:""}</span></button>`).join("")}</div>`;
+  pane.querySelectorAll(".dcard").forEach(c=>c.onclick=()=>{const on=c.classList.toggle("show");c.setAttribute("aria-expanded",on)});
+  $("#showAll").onclick=()=>pane.querySelectorAll(".dcard").forEach(c=>{c.classList.add("show");c.setAttribute("aria-expanded",true)});
+  $("#hideAll").onclick=()=>pane.querySelectorAll(".dcard").forEach(c=>{c.classList.remove("show");c.setAttribute("aria-expanded",false)});
+}
+
+function renderQcm(ch,pane){
+  const s=stat(ch,"q");
+  let h=`<p class="note">Une seule réponse est juste. Ta première réponse compte pour ton score.</p><div class="list">`;
+  ch.qcm.forEach((q,i)=>{
+    const k=`${ch.id}:q:${i}`,done=k in prog;
+    h+=`<div class="item" data-i="${i}"><div class="lab"><span>Question ${i+1}</span>${done?`<span class="st" style="color:${prog[k]?"var(--ok)":"var(--bad)"}">${prog[k]?"Réussie":"Ratée au premier essai"}</span>`:""}</div>
+    <div class="q">${q.q}</div><div class="opts">${q.o.map((o,j)=>`<button class="opt" data-j="${j}"><span class="L">${"ABCD"[j]}</span><span>${o}</span></button>`).join("")}</div><div class="fbz"></div></div>`;
+  });
+  h+=`</div>`;
+  pane.innerHTML=h;
+  pane.querySelectorAll(".item").forEach(it=>{
+    const i=+it.dataset.i,q=ch.qcm[i],k=`${ch.id}:q:${i}`;
+    const reveal=(j)=>{
+      it.querySelectorAll(".opt").forEach(b=>{b.disabled=true;const bj=+b.dataset.j;if(bj===q.a)b.classList.add("good");else if(bj===j)b.classList.add("wrong")});
+      const ok=j===q.a;
+      it.querySelector(".fbz").innerHTML=`<div class="fb ${ok?"ok":"bad"}"><b>${ok?"Bonne réponse.":"Ce n'est pas la bonne réponse."}</b> <span class="ink">${q.e}</span></div>`;
+    };
+    if(k in prog && prog["sel:"+k]!==undefined) reveal(prog["sel:"+k]);
+    it.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+      const j=+b.dataset.j;
+      if(!(k in prog)){prog[k]=j===q.a?1:0;prog["sel:"+k]=j;save();refreshProgress(ch)}
+      reveal(j);
+    });
+  });
+}
+
+function partHTML(p,key,j){
+  const id=`in-${key.replace(/:/g,"-")}`;
+  const solved=prog[key]===1;
+  if(p.t==="ch"){
+    return `<div class="part" data-k="${key}" data-j="${j}">${p.l?`<span class="pl">${p.l}</span>`:""}
+    <div class="row">${p.o.map((o,oi)=>`<button class="opt chb" data-o="${oi}" style="min-width:90px">${o}</button>`).join("")}</div><div class="pfb" aria-live="polite"></div></div>`;
+  }
+  return `<div class="part" data-k="${key}" data-j="${j}">${p.l?`<label class="pl" for="${id}">${p.l}</label>`:""}
+  <div class="row"><input id="${id}" type="text" autocomplete="off" spellcheck="false" ${p.t==="expr"?'inputmode="text" placeholder="ex : 3x^2 − 4x + 1"':'inputmode="decimal" placeholder="Ta réponse"'} class="${solved?"ok":""}" aria-label="${p.l?"":"Réponse"}">
+  ${p.u?`<span class="unit">${p.u}</span>`:""}
+  ${p.t==="expr"?`<span class="keys"><button type="button" data-ins="x">x</button><button type="button" data-ins="²">x²</button><button type="button" data-ins="(">(</button><button type="button" data-ins=")">)</button></span>`:""}
+  <button class="btn primary vb">Vérifier</button></div><div class="pfb" aria-live="polite">${solved?"Déjà réussi.":""}</div></div>`;
+}
+
+function renderExos(ch,pane,kind){
+  const items=kind==="e"?ch.exos:ch.pbs;
+  let h=`<p class="note">${kind==="e"?"Exercices d'application. Les nombres décimaux s'écrivent avec une virgule ou un point ; les fractions avec / (ex : −3/4).":"Problèmes : lis tout l'énoncé avant de répondre. Les questions s'enchaînent."}${items.some(x=>x.p.some(p=>p.t==="expr"))?" Pour le carré, tape ^2 ou utilise le bouton x².":""}</p><div class="list">`;
+  items.forEach((it,i)=>{
+    h+=`<div class="item" data-i="${i}"><div class="lab"><span>${kind==="e"?"Exercice":"Problème"} ${i+1}</span><span class="st"></span></div>
+    ${it.titre?`<h3>${it.titre}</h3>`:""}<div class="q">${it.q}</div><div class="parts">${it.p.map((p,j)=>partHTML(p,`${ch.id}:${kind}:${i}:${j}`,j)).join("")}</div>
+    <div class="aids"><button class="btn hb">Indice</button><button class="btn sb">Voir la correction</button></div><div class="aidz"></div></div>`;
+  });
+  pane.innerHTML=h+"</div>";
+  pane.querySelectorAll(".item").forEach(el=>{
+    const it=items[+el.dataset.i];
+    const upd=()=>{const all=it.p.every((_,j)=>prog[`${ch.id}:${kind}:${el.dataset.i}:${j}`]===1);el.querySelector(".st").textContent=all?"Réussi":""};
+    upd();
+    el.querySelectorAll(".part").forEach(pe=>{
+      const p=it.p[+pe.dataset.j],k=pe.dataset.k,fb=pe.querySelector(".pfb");
+      const show=r=>{fb.className="pfb "+r.st;fb.textContent=r.msg;if(r.st==="ok"){prog[k]=1;save();refreshProgress(ch);upd()}};
+      if(p.t==="ch"){
+        const btns=pe.querySelectorAll(".chb");
+        if(prog[k]===1) btns.forEach(b=>{if(+b.dataset.o===p.a)b.classList.add("good")});
+        btns.forEach(b=>b.onclick=()=>{
+          btns.forEach(x=>x.classList.remove("good","wrong"));
+          const ok=+b.dataset.o===p.a;b.classList.add(ok?"good":"wrong");
+          show(ok?{st:"ok",msg:"Bravo, c'est juste !"}:{st:"bad",msg:"Non. Fais le calcul des carrés pour décider."});
+        });
+        return;
+      }
+      const inp=pe.querySelector("input");
+      const go=()=>{const r=check(p,inp.value);inp.classList.toggle("ok",r.st==="ok");inp.classList.toggle("bad",r.st==="bad");show(r)};
+      pe.querySelector(".vb").onclick=go;
+      inp.addEventListener("keydown",e=>{if(e.key==="Enter")go()});
+      pe.querySelectorAll("[data-ins]").forEach(b=>b.onclick=()=>{
+        const t=b.dataset.ins,s=inp.selectionStart??inp.value.length,e=inp.selectionEnd??s;
+        inp.value=inp.value.slice(0,s)+t+inp.value.slice(e);inp.focus();inp.setSelectionRange(s+t.length,s+t.length);
+      });
+    });
+    const az=el.querySelector(".aidz");
+    el.querySelector(".hb").onclick=()=>{if(!az.querySelector(".hint"))az.insertAdjacentHTML("afterbegin",`<div class="reveal hint"><b>Indice</b>${it.h}</div>`)};
+    el.querySelector(".sb").onclick=()=>{if(!az.querySelector(".sol"))az.insertAdjacentHTML("beforeend",`<div class="reveal sol"><b>Correction</b>${it.s}</div>`)};
+  });
+}
+
+function refreshProgress(ch){
+  renderSide(ch.id);
+  const st=stat(ch);
+  const bar=view.querySelector(".ch-head .bar i");if(bar)bar.style.width=st.pct+"%";
+  const lab=view.querySelector(".ch-head .overall span");if(lab)lab.textContent=st.pct+" % réussi";
+  view.querySelectorAll(".tabs a").forEach(a=>{
+    const k=a.getAttribute("href").split("-")[1];const p={comprehension:"q",exercices:"e",problemes:"p"}[k];
+    if(p){const b=a.querySelector(".badge"),s=stat(ch,p);b.textContent=`${s.done}/${s.total}`;b.classList.toggle("full",s.done===s.total)}
+  });
+}
+
+/* ================= Navigation ================= */
+function route(){
+  const h=location.hash.slice(1);
+  const [id,tab]=h.split("-");
+  const ch=CH.find(c=>c.id===id);
+  closeMenu();
+  if(!ch){renderSide(null);renderHome()}
+  else{renderSide(ch.id);renderChapter(ch,TABS.some(t=>t[0]===tab)?tab:"cours")}
+  window.scrollTo(0,0);
+}
+let scrim=null;
+function openMenu(){side.classList.add("open");scrim=document.createElement("div");scrim.className="scrim";scrim.onclick=closeMenu;document.body.appendChild(scrim)}
+function closeMenu(){side.classList.remove("open");if(scrim){scrim.remove();scrim=null}}
+$("#menuBtn").onclick=()=>side.classList.contains("open")?closeMenu():openMenu();
+window.addEventListener("hashchange",route);
+route();
+</script>
