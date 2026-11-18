@@ -32,7 +32,7 @@ Le script :
 
 Le service écoute en local sur le premier port libre à partir de 8080 (les conteneurs Docker en occupent souvent) ; le port choisi est retenu dans `/etc/maths4e/port`. Pour en imposer un : `sudo PORT_LOCAL=19080 ./deploy/installer.sh`.
 
-Si Funnel publie déjà une autre application sur le port 443 du serveur, le script s'arrête sans rien casser : relance-le avec un autre port public (`sudo FUNNEL_PORT=8443 ./deploy/installer.sh`).
+Funnel n'autorise que trois ports publics : 443, 8443 et 10000. Le script prend le premier qui ne publie pas déjà une autre application et le retient dans `/etc/maths4e/funnel_port` (par exemple `https://serveur.ton-tailnet.ts.net:10000/` si 443 et 8443 sont pris). Si les trois sont occupés, il s'arrête sans rien casser et indique ce qui les occupe.
 
 ## Mettre à jour
 

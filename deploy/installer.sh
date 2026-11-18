@@ -9,7 +9,8 @@
 #      sudo ./deploy/installer.sh
 #
 #  Variables facultatives :
-#      FUNNEL_PORT=8443   port public Funnel (443, 8443 ou 10000 ; 443 par défaut)
+#      FUNNEL_PORT=10000  port public Funnel (443, 8443 ou 10000). Par défaut, le premier
+#                         libre, retenu dans /etc/maths4e/funnel_port.
 #      PORT_LOCAL=8090    port local du service (127.0.0.1 seulement). Par défaut, le
 #                         script prend le premier port libre à partir de 8080 et le
 #                         retient dans /etc/maths4e/port pour les mises à jour.
@@ -24,7 +25,7 @@ SAUVEGARDES=/var/backups/maths4e
 SERVICE=maths4e
 UTILISATEUR=maths4e
 PORT_FICHIER="$CONF_DIR/port"
-FUNNEL_PORT="${FUNNEL_PORT:-443}"
+FUNNEL_FICHIER="$CONF_DIR/funnel_port"
 
 etape()  { printf '\n\033[1;34m==> %s\033[0m\n' "$*"; }
 ok()     { printf '    \033[32m✓\033[0m %s\n' "$*"; }
@@ -41,7 +42,6 @@ erreur() { printf '\n\033[1;31mErreur : %s\033[0m\n' "$*" >&2; exit 1; }
 [[ "${VERSION_ID%%.*}" -ge 22 ]] || erreur "Ubuntu 22.04 ou plus récent est nécessaire (.NET 8)."
 command -v systemctl >/dev/null || erreur "systemd est nécessaire."
 command -v tailscale >/dev/null || erreur "Tailscale n'est pas installé sur ce serveur."
-case "$FUNNEL_PORT" in 443|8443|10000) ;; *) erreur "FUNNEL_PORT doit valoir 443, 8443 ou 10000." ;; esac
 
 # Version de Tailscale : la syntaxe « tailscale funnel --bg » existe depuis la 1.52
 TS_VERSION="$(tailscale version | head -n1)"
@@ -53,7 +53,6 @@ PY
 TS_DNS="$(tailscale status --json | python3 -c 'import json,sys; print(json.load(sys.stdin)["Self"]["DNSName"].rstrip("."))')" \
   || erreur "Tailscale n'est pas connecté (lance « sudo tailscale up »)."
 [[ -n "$TS_DNS" ]] || erreur "nom DNS Tailscale introuvable : active MagicDNS et HTTPS dans la console Tailscale."
-URL_PUBLIQUE="https://$TS_DNS$([[ $FUNNEL_PORT == 443 ]] || echo ":$FUNNEL_PORT")"
 
 # Port local du service : choisi par l'utilisateur, sinon celui retenu à l'installation
 # précédente, sinon le premier port libre (les conteneurs Docker en prennent souvent).
@@ -83,22 +82,55 @@ install -d -m 750 -o root -g root "$CONF_DIR"
 echo "$PORT_LOCAL" > "$PORT_FICHIER"
 echo "Port local du service : $PORT_LOCAL"
 
-# Le port Funnel ne doit pas déjà servir une autre application
-AUTRE="$(tailscale serve status --json 2>/dev/null | python3 -c '
+# Port public Funnel (443, 8443 ou 10000) : il ne doit pas déjà publier une autre application.
+TS_SERVE="$(tailscale serve status --json 2>/dev/null || echo '{}')"
+# occupant PORT : affiche ce que Tailscale publie déjà sur ce port (vide si libre ou si c'est Maths 4e)
+occupant() {
+  python3 -c '
 import json, sys
 port, locaux = sys.argv[1], [x for x in sys.argv[2:] if x]
-try: cfg = json.load(sys.stdin)
+try: cfg = json.loads(sys.stdin.read() or "{}")
 except Exception: sys.exit(0)
+nos_cibles = set()
+for l in locaux:
+    nos_cibles |= {"http://127.0.0.1:" + l, "http://localhost:" + l, "127.0.0.1:" + l, "localhost:" + l, l}
 for hote, web in (cfg.get("Web") or {}).items():
     if hote.endswith(":" + port):
         for chemin, h in (web.get("Handlers") or {}).items():
             cible = h.get("Proxy") or h.get("Path") or h.get("Text") or "?"
-            nos_cibles = [f(l) for l in locaux for f in (lambda l: "http://127.0.0.1:" + l, lambda l: "http://localhost:" + l, lambda l: l)]
             if cible.rstrip("/") not in nos_cibles:
                 print(chemin + " -> " + cible)
-' "$FUNNEL_PORT" "$PORT_LOCAL" "$ANCIEN_PORT" || true)"
-[[ -z "$AUTRE" ]] || erreur "Tailscale publie déjà autre chose sur le port $FUNNEL_PORT ($AUTRE).
-  Choisis un autre port public : sudo FUNNEL_PORT=8443 ./deploy/installer.sh"
+tcp = (cfg.get("TCP") or {}).get(port) or {}
+fwd = tcp.get("TCPForward")
+if fwd and fwd not in nos_cibles:
+    print("TCP -> " + fwd)
+' "$1" "$PORT_LOCAL" "$ANCIEN_PORT" <<< "$TS_SERVE"
+}
+LIBRES=()
+for p in 443 8443 10000; do [[ -z "$(occupant "$p")" ]] && LIBRES+=("$p"); done
+if [[ -n "${FUNNEL_PORT:-}" ]]; then
+  case "$FUNNEL_PORT" in 443|8443|10000) ;; *) erreur "FUNNEL_PORT doit valoir 443, 8443 ou 10000 (seuls ports autorisés par Funnel)." ;; esac
+elif [[ -f "$FUNNEL_FICHIER" ]]; then
+  FUNNEL_PORT="$(tr -dc '0-9' < "$FUNNEL_FICHIER")"
+elif [[ ${#LIBRES[@]} -gt 0 ]]; then
+  FUNNEL_PORT="${LIBRES[0]}"
+else
+  erreur "les trois ports Funnel (443, 8443, 10000) publient déjà d'autres applications :
+  443   : $(occupant 443)
+  8443  : $(occupant 8443)
+  10000 : $(occupant 10000)
+  Libère l'un d'eux (tailscale funnel --https=PORT off), puis relance le script."
+fi
+AUTRE="$(occupant "$FUNNEL_PORT")"
+if [[ -n "$AUTRE" ]]; then
+  if [[ ${#LIBRES[@]} -gt 0 ]]; then
+    erreur "Tailscale publie déjà autre chose sur le port $FUNNEL_PORT ($AUTRE).
+  Port Funnel libre : ${LIBRES[*]}. Relance avec : sudo FUNNEL_PORT=${LIBRES[0]} ./deploy/installer.sh"
+  fi
+  erreur "Tailscale publie déjà autre chose sur le port $FUNNEL_PORT ($AUTRE), et aucun autre port Funnel n'est libre."
+fi
+echo "$FUNNEL_PORT" > "$FUNNEL_FICHIER"
+URL_PUBLIQUE="https://$TS_DNS$([[ $FUNNEL_PORT == 443 ]] || echo ":$FUNNEL_PORT")"
 
 echo "Maths 4e sera publié sur : $URL_PUBLIQUE"
 
