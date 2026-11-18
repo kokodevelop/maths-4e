@@ -150,8 +150,9 @@ echo "Maths 4e sera publié sur : $URL_PUBLIQUE"
 # ----------------------------------------------------------------- 1. Paquets
 etape "1/7 Paquets (.NET 8, MySQL)"
 export DEBIAN_FRONTEND=noninteractive
-apt-get update -qq
-PAQUETS=(dotnet-sdk-8.0 openssl python3 curl gzip)
+# Un dépôt tiers injoignable (Node.js, Docker…) ne doit pas bloquer l'installation
+apt-get update -qq || info "(certains dépôts n'ont pas répondu, on continue)"
+PAQUETS=(openssl python3 curl gzip ca-certificates)
 if dpkg -s mariadb-server >/dev/null 2>&1; then
   info "MariaDB est déjà installé : il sera utilisé à la place de MySQL."
 else
@@ -159,6 +160,33 @@ else
 fi
 apt-get install -y -qq "${PAQUETS[@]}" >/dev/null
 systemctl enable --now mysql >/dev/null 2>&1 || systemctl enable --now mariadb >/dev/null
+
+# .NET 8 : déjà présent ? sinon paquet Ubuntu, sinon dépôt universe, sinon script officiel Microsoft
+sdk8() { command -v dotnet >/dev/null && dotnet --list-sdks 2>/dev/null | grep -q '^8\.'; }
+paquet_dispo() { local c; c="$(LC_ALL=C apt-cache policy "$1" 2>/dev/null | awk '/Candidate:/ {print $2}')"; [[ -n "$c" && "$c" != "(none)" ]]; }
+if sdk8; then
+  info ".NET 8 déjà installé"
+else
+  if ! paquet_dispo dotnet-sdk-8.0 && command -v add-apt-repository >/dev/null; then
+    info "activation du dépôt Ubuntu « universe »…"
+    add-apt-repository -y universe >/dev/null 2>&1 || true
+    apt-get update -qq || true
+  fi
+  if paquet_dispo dotnet-sdk-8.0; then
+    apt-get install -y -qq dotnet-sdk-8.0 >/dev/null
+  else
+    info "paquet Ubuntu introuvable : installation par le script officiel Microsoft (dans /usr/share/dotnet)…"
+    apt-get install -y -qq libicu-dev >/dev/null || true
+    curl -fsSL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh \
+      || erreur "téléchargement de dotnet-install.sh impossible (https://dot.net)."
+    bash /tmp/dotnet-install.sh --channel 8.0 --install-dir /usr/share/dotnet >/dev/null \
+      || erreur "l'installation de .NET 8 a échoué."
+    rm -f /tmp/dotnet-install.sh
+    ln -sf /usr/share/dotnet/dotnet /usr/local/bin/dotnet
+    hash -r
+  fi
+  sdk8 || erreur ".NET 8 n'a pas pu être installé. Envoie la sortie de : lsb_release -a ; apt-cache policy dotnet-sdk-8.0"
+fi
 ok ".NET $(dotnet --version), $(mysql --version | awk '{print $1, $2, $3}')"
 
 # ----------------------------------------------------------------- 2. Configuration
