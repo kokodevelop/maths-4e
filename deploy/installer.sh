@@ -61,12 +61,16 @@ port_pris() {
   else (exec 3<>"/dev/tcp/127.0.0.1/$1") 2>/dev/null
   fi
 }
+# Port du service déjà installé (installation faite avec une version qui ne le retenait pas)
+ANCIEN_PORT="$(sed -n 's/^Environment=ASPNETCORE_URLS=http:\/\/127\.0\.0\.1:\([0-9]*\)$/\1/p' "/etc/systemd/system/$SERVICE.service" 2>/dev/null || true)"
 SERVICE_ACTIF=0
 systemctl is-active --quiet "$SERVICE" && SERVICE_ACTIF=1
 if [[ -n "${PORT_LOCAL:-}" ]]; then
   [[ "$PORT_LOCAL" =~ ^[0-9]+$ && "$PORT_LOCAL" -ge 1024 && "$PORT_LOCAL" -le 65535 ]] || erreur "PORT_LOCAL doit être un nombre entre 1024 et 65535."
 elif [[ -f "$PORT_FICHIER" ]]; then
   PORT_LOCAL="$(tr -dc '0-9' < "$PORT_FICHIER")"
+elif [[ -n "$ANCIEN_PORT" ]]; then
+  PORT_LOCAL="$ANCIEN_PORT"
 else
   for p in 8080 $(seq 8090 8099) $(seq 18080 18099); do
     if ! port_pris "$p"; then PORT_LOCAL=$p; break; fi
@@ -74,7 +78,6 @@ else
   [[ -n "${PORT_LOCAL:-}" ]] || erreur "aucun port libre trouvé. Indique-en un : sudo PORT_LOCAL=19080 ./deploy/installer.sh"
 fi
 # Le port est libre, ou c'est déjà celui de notre service
-ANCIEN_PORT="$(sed -n 's/^Environment=ASPNETCORE_URLS=http:\/\/127\.0\.0\.1:\([0-9]*\)$/\1/p' "/etc/systemd/system/$SERVICE.service" 2>/dev/null || true)"
 if port_pris "$PORT_LOCAL" && ! [[ $SERVICE_ACTIF == 1 && "$ANCIEN_PORT" == "$PORT_LOCAL" ]]; then
   erreur "le port $PORT_LOCAL est déjà utilisé par un autre programme. Relance avec un port libre : sudo PORT_LOCAL=19080 ./deploy/installer.sh"
 fi
@@ -112,6 +115,16 @@ if [[ -n "${FUNNEL_PORT:-}" ]]; then
   case "$FUNNEL_PORT" in 443|8443|10000) ;; *) erreur "FUNNEL_PORT doit valoir 443, 8443 ou 10000 (seuls ports autorisés par Funnel)." ;; esac
 elif [[ -f "$FUNNEL_FICHIER" ]]; then
   FUNNEL_PORT="$(tr -dc '0-9' < "$FUNNEL_FICHIER")"
+elif [[ -n "$ANCIEN_PORT" ]] && DEJA="$(python3 -c '
+import json, sys
+cfg = json.loads(sys.stdin.read() or "{}"); port = sys.argv[1]
+for hote, web in (cfg.get("Web") or {}).items():
+    for h in (web.get("Handlers") or {}).values():
+        if (h.get("Proxy") or "").rstrip("/") in ("http://127.0.0.1:" + port, "http://localhost:" + port):
+            print(hote.rsplit(":", 1)[1]); sys.exit(0)
+sys.exit(1)' "$ANCIEN_PORT" <<< "$TS_SERVE")"; then
+  # Funnel publie déjà Maths 4e (installation faite avec une version qui ne retenait pas le port)
+  FUNNEL_PORT="$DEJA"
 elif [[ ${#LIBRES[@]} -gt 0 ]]; then
   FUNNEL_PORT="${LIBRES[0]}"
 else
