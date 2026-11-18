@@ -81,7 +81,15 @@ info "port local : 127.0.0.1:$PORT_LOCAL"
 
 # ----------------------------------------------------------------- 2. Conteneurs
 etape "2/5 Construction et démarrage des conteneurs"
-compose up -d --build --remove-orphans
+if ! compose up -d --build --remove-orphans; then
+  echo
+  info "Journal de MySQL :"
+  compose logs --tail=40 db || true
+  if compose logs db 2>/dev/null | grep -q "x86-64-v2"; then
+    erreur "le processeur du serveur ne peut pas faire tourner l'image mysql:8.4. Envoie ce message : il faut passer à une image compatible."
+  fi
+  erreur "un conteneur n'a pas démarré (journal ci-dessus). Relance le script : la première initialisation de MySQL peut être lente."
+fi
 info "attente du démarrage (MySQL peut prendre une minute la première fois)…"
 for _ in $(seq 1 120); do
   if curl -fsS "http://127.0.0.1:$PORT_LOCAL/api/sante" >/dev/null 2>&1; then break; fi
