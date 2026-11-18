@@ -18,4 +18,4 @@ L'application est une Progressive Web App : une fois hébergée en HTTPS (GitHub
 - **iPad (Safari)** : bouton Partager → « Sur l'écran d'accueil ».
 - **Android (Chrome)** : bouton « Installer » sur la page d'accueil, ou menu ⋮ → « Installer l'application ».
 
-Après une modification, augmenter `VERSION` dans `sw.js` pour que les tablettes récupèrent la nouvelle version.
+Chaque push sur `main` est déployé automatiquement par Vercel. Les tablettes récupèrent la nouvelle version dès qu'elles ouvrent l'application avec du réseau (la page est toujours chargée depuis le réseau en priorité). Augmenter `VERSION` dans `sw.js` seulement si les icônes ou le manifeste changent.
