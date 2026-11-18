@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
+    <!-- Tourne aussi sur .NET 9 ou 10 (Ubuntu 26.04 ne fournit plus .NET 8) -->
+    <RollForward>Major</RollForward>
     <RootNamespace>MathsSuivi.Api</RootNamespace>
     <OptionStrict>On</OptionStrict>
     <OptionInfer>On</OptionInfer>

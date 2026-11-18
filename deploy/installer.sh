@@ -39,7 +39,7 @@ erreur() { printf '\n\033[1;31mErreur : %s\033[0m\n' "$*" >&2; exit 1; }
 # shellcheck source=/dev/null
 . /etc/os-release
 [[ "${ID:-}" == "ubuntu" ]] || erreur "ce script est prévu pour Ubuntu (système détecté : ${PRETTY_NAME:-inconnu})."
-[[ "${VERSION_ID%%.*}" -ge 22 ]] || erreur "Ubuntu 22.04 ou plus récent est nécessaire (.NET 8)."
+[[ "${VERSION_ID%%.*}" -ge 22 ]] || erreur "Ubuntu 22.04 ou plus récent est nécessaire."
 command -v systemctl >/dev/null || erreur "systemd est nécessaire."
 command -v tailscale >/dev/null || erreur "Tailscale n'est pas installé sur ce serveur."
 
@@ -148,7 +148,7 @@ URL_PUBLIQUE="https://$TS_DNS$([[ $FUNNEL_PORT == 443 ]] || echo ":$FUNNEL_PORT"
 echo "Maths 4e sera publié sur : $URL_PUBLIQUE"
 
 # ----------------------------------------------------------------- 1. Paquets
-etape "1/7 Paquets (.NET 8, MySQL)"
+etape "1/7 Paquets (.NET, MySQL)"
 export DEBIAN_FRONTEND=noninteractive
 # Un dépôt tiers injoignable (Node.js, Docker…) ne doit pas bloquer l'installation
 apt-get update -qq || info "(certains dépôts n'ont pas répondu, on continue)"
@@ -161,19 +161,22 @@ fi
 apt-get install -y -qq "${PAQUETS[@]}" >/dev/null
 systemctl enable --now mysql >/dev/null 2>&1 || systemctl enable --now mariadb >/dev/null
 
-# .NET 8 : déjà présent ? sinon paquet Ubuntu, sinon dépôt universe, sinon script officiel Microsoft
-sdk8() { command -v dotnet >/dev/null && dotnet --list-sdks 2>/dev/null | grep -q '^8\.'; }
+# .NET (8 ou plus récent) : déjà présent ? sinon paquet Ubuntu (dotnet-sdk-8.0, ou 10.0 sur
+# Ubuntu 26.04 qui ne fournit plus .NET 8), en activant universe si besoin, sinon script Microsoft.
+sdk_ok() { command -v dotnet >/dev/null && dotnet --list-sdks 2>/dev/null | grep -Eq '^([89]|[1-9][0-9])\.'; }
 paquet_dispo() { local c; c="$(LC_ALL=C apt-cache policy "$1" 2>/dev/null | awk '/Candidate:/ {print $2}')"; [[ -n "$c" && "$c" != "(none)" ]]; }
-if sdk8; then
-  info ".NET 8 déjà installé"
+premier_sdk() { for p in dotnet-sdk-8.0 dotnet-sdk-10.0 dotnet-sdk-9.0; do paquet_dispo "$p" && { echo "$p"; return 0; }; done; return 1; }
+if sdk_ok; then
+  info ".NET déjà installé"
 else
-  if ! paquet_dispo dotnet-sdk-8.0 && command -v add-apt-repository >/dev/null; then
+  if ! premier_sdk >/dev/null && command -v add-apt-repository >/dev/null; then
     info "activation du dépôt Ubuntu « universe »…"
     add-apt-repository -y universe >/dev/null 2>&1 || true
     apt-get update -qq || true
   fi
-  if paquet_dispo dotnet-sdk-8.0; then
-    apt-get install -y -qq dotnet-sdk-8.0 >/dev/null
+  if SDK_PAQUET="$(premier_sdk)"; then
+    info "installation de $SDK_PAQUET…"
+    apt-get install -y -qq "$SDK_PAQUET" >/dev/null
   else
     info "paquet Ubuntu introuvable : installation par le script officiel Microsoft (dans /usr/share/dotnet)…"
     apt-get install -y -qq libicu-dev >/dev/null || true
@@ -185,7 +188,7 @@ else
     ln -sf /usr/share/dotnet/dotnet /usr/local/bin/dotnet
     hash -r
   fi
-  sdk8 || erreur ".NET 8 n'a pas pu être installé. Envoie la sortie de : lsb_release -a ; apt-cache policy dotnet-sdk-8.0"
+  sdk_ok || erreur ".NET n'a pas pu être installé. Envoie la sortie de : lsb_release -a ; apt-cache search dotnet-sdk"
 fi
 ok ".NET $(dotnet --version), $(mysql --version | awk '{print $1, $2, $3}')"
 

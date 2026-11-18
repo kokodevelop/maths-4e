@@ -20,7 +20,7 @@ sudo ./deploy/installer.sh
 
 Le script :
 
-1. installe .NET 8 et MySQL (ou utilise MariaDB s'il est déjà là) ;
+1. installe .NET (8, ou 10 sur Ubuntu 26.04) et MySQL (ou utilise MariaDB s'il est déjà là) ;
 2. crée `/etc/maths4e/appsettings.Production.json` avec des secrets générés (mot de passe MySQL, clé JWT, code d'invitation enseignant) ;
 3. crée la base `maths4e` et son utilisateur ;
 4. compile l'API ;

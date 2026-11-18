@@ -1,6 +1,6 @@
 # API de suivi des élèves — Maths 4e
 
-API ASP.NET Core 8 écrite en **VB.NET**, avec Dapper. Elle enregistre les résultats des élèves et fournit le bilan de chaque classe à l'enseignant.
+API ASP.NET Core 8 écrite en **VB.NET**, avec Dapper. Elle tourne aussi sur .NET 9 et 10 (`RollForward=Major`). Elle enregistre les résultats des élèves et fournit le bilan de chaque classe à l'enseignant.
 Base de données au choix : **MySQL 8** ou **SQL Server 2016+**.
 
 ## Ce que fait l'API
