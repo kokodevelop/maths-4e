@@ -10,7 +10,9 @@
 #
 #  Variables facultatives :
 #      FUNNEL_PORT=8443   port public Funnel (443, 8443 ou 10000 ; 443 par défaut)
-#      PORT_LOCAL=8080    port local du service (127.0.0.1 seulement)
+#      PORT_LOCAL=8090    port local du service (127.0.0.1 seulement). Par défaut, le
+#                         script prend le premier port libre à partir de 8080 et le
+#                         retient dans /etc/maths4e/port pour les mises à jour.
 # =============================================================================
 set -euo pipefail
 
@@ -21,7 +23,7 @@ CONF="$CONF_DIR/appsettings.Production.json"
 SAUVEGARDES=/var/backups/maths4e
 SERVICE=maths4e
 UTILISATEUR=maths4e
-PORT_LOCAL="${PORT_LOCAL:-8080}"
+PORT_FICHIER="$CONF_DIR/port"
 FUNNEL_PORT="${FUNNEL_PORT:-443}"
 
 etape()  { printf '\n\033[1;34m==> %s\033[0m\n' "$*"; }
@@ -53,24 +55,48 @@ TS_DNS="$(tailscale status --json | python3 -c 'import json,sys; print(json.load
 [[ -n "$TS_DNS" ]] || erreur "nom DNS Tailscale introuvable : active MagicDNS et HTTPS dans la console Tailscale."
 URL_PUBLIQUE="https://$TS_DNS$([[ $FUNNEL_PORT == 443 ]] || echo ":$FUNNEL_PORT")"
 
-# Le port local ne doit pas être pris par un autre programme
-if command -v ss >/dev/null && [[ -n "$(ss -ltnH "sport = :$PORT_LOCAL")" ]] && ! systemctl is-active --quiet "$SERVICE"; then
-  erreur "le port $PORT_LOCAL est déjà utilisé. Relance avec un autre port : sudo PORT_LOCAL=8090 ./deploy/installer.sh"
+# Port local du service : choisi par l'utilisateur, sinon celui retenu à l'installation
+# précédente, sinon le premier port libre (les conteneurs Docker en prennent souvent).
+port_pris() {
+  if command -v ss >/dev/null; then [[ -n "$(ss -ltnH "sport = :$1")" ]]
+  else (exec 3<>"/dev/tcp/127.0.0.1/$1") 2>/dev/null
+  fi
+}
+SERVICE_ACTIF=0
+systemctl is-active --quiet "$SERVICE" && SERVICE_ACTIF=1
+if [[ -n "${PORT_LOCAL:-}" ]]; then
+  [[ "$PORT_LOCAL" =~ ^[0-9]+$ && "$PORT_LOCAL" -ge 1024 && "$PORT_LOCAL" -le 65535 ]] || erreur "PORT_LOCAL doit être un nombre entre 1024 et 65535."
+elif [[ -f "$PORT_FICHIER" ]]; then
+  PORT_LOCAL="$(tr -dc '0-9' < "$PORT_FICHIER")"
+else
+  for p in 8080 $(seq 8090 8099) $(seq 18080 18099); do
+    if ! port_pris "$p"; then PORT_LOCAL=$p; break; fi
+  done
+  [[ -n "${PORT_LOCAL:-}" ]] || erreur "aucun port libre trouvé. Indique-en un : sudo PORT_LOCAL=19080 ./deploy/installer.sh"
 fi
+# Le port est libre, ou c'est déjà celui de notre service
+ANCIEN_PORT="$(sed -n 's/^Environment=ASPNETCORE_URLS=http:\/\/127\.0\.0\.1:\([0-9]*\)$/\1/p' "/etc/systemd/system/$SERVICE.service" 2>/dev/null || true)"
+if port_pris "$PORT_LOCAL" && ! [[ $SERVICE_ACTIF == 1 && "$ANCIEN_PORT" == "$PORT_LOCAL" ]]; then
+  erreur "le port $PORT_LOCAL est déjà utilisé par un autre programme. Relance avec un port libre : sudo PORT_LOCAL=19080 ./deploy/installer.sh"
+fi
+install -d -m 750 -o root -g root "$CONF_DIR"
+echo "$PORT_LOCAL" > "$PORT_FICHIER"
+echo "Port local du service : $PORT_LOCAL"
 
 # Le port Funnel ne doit pas déjà servir une autre application
 AUTRE="$(tailscale serve status --json 2>/dev/null | python3 -c '
 import json, sys
-port, local = sys.argv[1], sys.argv[2]
+port, locaux = sys.argv[1], [x for x in sys.argv[2:] if x]
 try: cfg = json.load(sys.stdin)
 except Exception: sys.exit(0)
 for hote, web in (cfg.get("Web") or {}).items():
     if hote.endswith(":" + port):
         for chemin, h in (web.get("Handlers") or {}).items():
             cible = h.get("Proxy") or h.get("Path") or h.get("Text") or "?"
-            if cible.rstrip("/") not in ("http://127.0.0.1:" + local, "http://localhost:" + local, local):
+            nos_cibles = [f(l) for l in locaux for f in (lambda l: "http://127.0.0.1:" + l, lambda l: "http://localhost:" + l, lambda l: l)]
+            if cible.rstrip("/") not in nos_cibles:
                 print(chemin + " -> " + cible)
-' "$FUNNEL_PORT" "$PORT_LOCAL" || true)"
+' "$FUNNEL_PORT" "$PORT_LOCAL" "$ANCIEN_PORT" || true)"
 [[ -z "$AUTRE" ]] || erreur "Tailscale publie déjà autre chose sur le port $FUNNEL_PORT ($AUTRE).
   Choisis un autre port public : sudo FUNNEL_PORT=8443 ./deploy/installer.sh"
 

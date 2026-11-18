@@ -25,10 +25,12 @@ Le script :
 3. crée la base `maths4e` et son utilisateur ;
 4. compile l'API ;
 5. installe l'API dans `/opt/maths4e/api` et le site dans `/opt/maths4e/site` ;
-6. crée le service systemd `maths4e` (écoute seulement sur `127.0.0.1:8080`) ;
+6. crée le service systemd `maths4e` (écoute seulement en local, sur un port libre) ;
 7. publie le service avec Tailscale Funnel et programme une sauvegarde MySQL chaque nuit (14 jours gardés dans `/var/backups/maths4e`).
 
 À la fin, il affiche l'adresse des élèves, celle de l'espace enseignant et le **code d'invitation** pour créer ton compte enseignant sur `/prof.html`.
+
+Le service écoute en local sur le premier port libre à partir de 8080 (les conteneurs Docker en occupent souvent) ; le port choisi est retenu dans `/etc/maths4e/port`. Pour en imposer un : `sudo PORT_LOCAL=19080 ./deploy/installer.sh`.
 
 Si Funnel publie déjà une autre application sur le port 443 du serveur, le script s'arrête sans rien casser : relance-le avec un autre port public (`sudo FUNNEL_PORT=8443 ./deploy/installer.sh`).
 
