@@ -25,6 +25,6 @@ Chaque push sur `main` est déployé automatiquement par Vercel. Les tablettes r
 Le dossier `api/` contient l'API de suivi (ASP.NET Core 8, VB.NET, MySQL ou SQL Server) : comptes enseignants, classes, connexion des élèves par code PIN, enregistrement des résultats avec contrôle côté serveur, bilan de classe.
 L'espace enseignant est la page `prof.html`.
 
-**Installation la plus simple : un serveur Ubuntu avec Tailscale Funnel**, site et API ensemble, en une commande : voir [deploy/README.md](deploy/README.md).
+**Installation la plus simple : Docker + Tailscale Funnel**, site, API et MySQL ensemble, en une commande (`sudo ./deploy/docker.sh`) : voir [deploy/README.md](deploy/README.md).
 
 Installation manuelle (IIS, SQL Server…) : voir [api/README.md](api/README.md), puis renseigner l'adresse de l'API dans `config.js`.

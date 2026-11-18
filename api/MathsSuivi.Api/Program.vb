@@ -75,8 +75,19 @@ Public Module Program
 
         ' Derrière un relais local (Tailscale Funnel, Nginx…) : l'adresse IP réelle est dans X-Forwarded-For.
         ' Seuls les relais sur la machine elle-même (127.0.0.1, ::1) sont crus.
+        ' Dans Docker, le relais arrive par le réseau interne de Docker : ses plages sont
+        ' ajoutées dans Securite:RelaisDeConfiance (ex. "172.16.0.0/12").
+        Dim relais = cfg.GetSection("Securite:RelaisDeConfiance").Get(Of String())()
         builder.Services.Configure(Of ForwardedHeadersOptions)(
-            Sub(o) o.ForwardedHeaders = ForwardedHeaders.XForwardedFor Or ForwardedHeaders.XForwardedProto)
+            Sub(o)
+                o.ForwardedHeaders = ForwardedHeaders.XForwardedFor Or ForwardedHeaders.XForwardedProto
+                If relais IsNot Nothing Then
+                    For Each plage In relais
+                        Dim morceaux = plage.Split("/"c)
+                        o.KnownNetworks.Add(New IPNetwork(Net.IPAddress.Parse(morceaux(0)), Integer.Parse(morceaux(1))))
+                    Next
+                End If
+            End Sub)
 
         Dim app = builder.Build()
         app.UseForwardedHeaders()

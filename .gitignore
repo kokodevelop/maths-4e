@@ -11,3 +11,6 @@ api/**/appsettings.*.local.json
 .vs/
 *.user
 .DS_Store
+
+# Secrets Docker (deploy/docker.sh)
+.env

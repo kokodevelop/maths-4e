@@ -1,0 +1,49 @@
+# Maths 4e : application (site + API VB.NET) et base MySQL.
+# Les secrets sont dans le fichier .env, créé par deploy/docker.sh (jamais dans Git).
+# Démarrage et mises à jour : ./deploy/docker.sh
+
+name: maths4e
+
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?à définir dans .env}
+      MYSQL_DATABASE: maths4e
+      MYSQL_USER: maths4e
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?à définir dans .env}
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    volumes:
+      - donnees:/var/lib/mysql
+      # Création des tables au premier démarrage
+      - ./api/sql/01_schema_mysql.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+  app:
+    build: .
+    image: maths4e-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ConnectionStrings__MySql: "Server=db;Port=3306;Database=maths4e;User ID=maths4e;Password=${MYSQL_PASSWORD};AllowPublicKeyRetrieval=True;"
+      Jwt__Cle: ${JWT_CLE:?à définir dans .env}
+      Inscription__CodeInvitation: ${CODE_INVITATION:-}
+      Cors__Origines__0: https://maths-4e-sigma.vercel.app
+      # Les requêtes arrivent par le réseau Docker : l'adresse réelle des élèves est dans X-Forwarded-For
+      Securite__RelaisDeConfiance__0: 172.16.0.0/12
+      Securite__RelaisDeConfiance__1: 192.168.0.0/16
+      Securite__RelaisDeConfiance__2: 10.0.0.0/8
+    ports:
+      # Accessible seulement depuis le serveur lui-même ; Tailscale Funnel le publie en HTTPS
+      - "127.0.0.1:${PORT_LOCAL:-8090}:8080"
+
+volumes:
+  donnees:

@@ -1,59 +1,68 @@
-# Installer Maths 4e sur un serveur Ubuntu (Tailscale Funnel)
+# Installer Maths 4e sur un serveur (Docker + Tailscale Funnel)
 
-Le site élève, l'espace enseignant et l'API de suivi tournent dans **un seul service** sur le serveur, avec MySQL.
-Tailscale Funnel les publie en HTTPS à une adresse du type `https://serveur.ton-tailnet.ts.net` : les élèves n'ont rien à installer à part l'application elle-même.
+Deux conteneurs : **MySQL 8.4** et l'**application** (API VB.NET .NET 8 qui sert aussi le site élève et l'espace enseignant).
+Tailscale Funnel les publie en HTTPS à une adresse du type `https://serveur.ton-tailnet.ts.net:10000` : les élèves n'ont rien d'autre à installer que l'application elle-même.
+
+Rien n'est installé sur le système hôte à part les conteneurs : pas de .NET, pas de MySQL, quelle que soit la version d'Ubuntu.
 
 ## Prérequis
 
-- Ubuntu 22.04 ou plus récent, avec `sudo`.
-- Tailscale 1.52 ou plus récent, connecté (`tailscale status`), avec **MagicDNS** et **HTTPS** activés dans la console Tailscale.
+- Docker avec le plugin `docker compose`.
+- Tailscale 1.52 ou plus récent, connecté, avec **MagicDNS** et **HTTPS** activés dans la console Tailscale.
 - **Funnel autorisé** pour ce serveur (console Tailscale → *Access controls* → `nodeAttrs` avec `"attr": ["funnel"]`).
-- Le dépôt GitHub cloné sur le serveur (il est privé : clone-le avec ton compte, par exemple avec `gh auth login` ou une clé SSH GitHub).
+- Le dépôt GitHub cloné sur le serveur (il est privé : clone-le avec ton compte GitHub).
 
-## Première installation
+## Installation
 
 ```bash
-git clone https://github.com/kokodevelop/maths-4e.git
-cd maths-4e
-sudo ./deploy/installer.sh
+git clone https://github.com/kokodevelop/maths-4e.git ~/maths-4e
+cd ~/maths-4e
+sudo ./deploy/docker.sh
 ```
 
 Le script :
 
-1. installe .NET (8, ou 10 sur Ubuntu 26.04) et MySQL (ou utilise MariaDB s'il est déjà là) ;
-2. crée `/etc/maths4e/appsettings.Production.json` avec des secrets générés (mot de passe MySQL, clé JWT, code d'invitation enseignant) ;
-3. crée la base `maths4e` et son utilisateur ;
-4. compile l'API ;
-5. installe l'API dans `/opt/maths4e/api` et le site dans `/opt/maths4e/site` ;
-6. crée le service systemd `maths4e` (écoute seulement en local, sur un port libre) ;
-7. publie le service avec Tailscale Funnel et programme une sauvegarde MySQL chaque nuit (14 jours gardés dans `/var/backups/maths4e`).
+1. crée le fichier `.env` (hors Git, lisible par root seulement) avec des secrets générés : mots de passe MySQL, clé des jetons, code d'invitation enseignant, et un **port local libre** (8090 par défaut, les autres conteneurs en occupent souvent) ;
+2. construit l'image de l'application et démarre les deux conteneurs (redémarrage automatique avec Docker) ;
+3. crée ou met à jour les tables de la base (données dans le volume Docker `maths4e_donnees`) ;
+4. publie l'application avec Tailscale Funnel sur le premier port public libre parmi 443, 8443 et 10000 (les seuls autorisés par Funnel) ;
+5. programme une sauvegarde de la base chaque nuit (14 jours gardés dans `/var/backups/maths4e`).
 
-À la fin, il affiche l'adresse des élèves, celle de l'espace enseignant et le **code d'invitation** pour créer ton compte enseignant sur `/prof.html`.
+À la fin, il affiche l'adresse des élèves, celle de l'espace enseignant (`/prof.html`) et le **code d'invitation** pour créer ton compte enseignant.
 
-Le service écoute en local sur le premier port libre à partir de 8080 (les conteneurs Docker en occupent souvent) ; le port choisi est retenu dans `/etc/maths4e/port`. Pour en imposer un : `sudo PORT_LOCAL=19080 ./deploy/installer.sh`.
-
-Funnel n'autorise que trois ports publics : 443, 8443 et 10000. Le script prend le premier qui ne publie pas déjà une autre application et le retient dans `/etc/maths4e/funnel_port` (par exemple `https://serveur.ton-tailnet.ts.net:10000/` si 443 et 8443 sont pris). Si les trois sont occupés, il s'arrête sans rien casser et indique ce qui les occupe.
+L'application n'écoute que sur `127.0.0.1` : elle n'est joignable de l'extérieur que par Funnel.
 
 ## Mettre à jour
 
 ```bash
-cd maths-4e
+cd ~/maths-4e
 git pull
-sudo ./deploy/installer.sh
+sudo ./deploy/docker.sh
 ```
 
-La configuration, la base et les comptes sont conservés. La version précédente est gardée dans `/opt/maths4e/api.old` et `site.old`.
+Les secrets, les ports, les comptes et les résultats sont conservés.
 
-## En cas de problème
+## Commandes utiles
+
+À lancer dans `~/maths-4e` :
 
 | Besoin | Commande |
 |---|---|
-| Voir le journal du service | `journalctl -u maths4e -f` |
-| Redémarrer | `sudo systemctl restart maths4e` |
-| Revenir à la version précédente | `sudo ./deploy/restaurer.sh` |
-| Vérifier l'état | `curl http://127.0.0.1:8080/api/sante` |
+| État des conteneurs | `sudo docker compose ps` |
+| Journal de l'application | `sudo docker compose logs -f app` |
+| Redémarrer | `sudo docker compose restart` |
+| Arrêter | `sudo docker compose down` (les données restent dans le volume) |
+| Vérifier l'état | `curl http://127.0.0.1:8090/api/sante` (port : `PORT_LOCAL` dans `.env`) |
 | Voir la publication Funnel | `tailscale funnel status` |
 | Sauvegarder maintenant | `sudo /usr/local/sbin/maths4e-sauvegarde` |
-| Restaurer une sauvegarde | `gunzip -c /var/backups/maths4e/maths4e-AAAA-MM-JJ.sql.gz \| sudo mysql maths4e` |
+| Code d'invitation | `sudo grep CODE_INVITATION .env` |
 
-Pour retrouver le code d'invitation : `sudo grep CodeInvitation /etc/maths4e/appsettings.Production.json`.
+Restaurer une sauvegarde :
+
+```bash
+gunzip -c /var/backups/maths4e/maths4e-AAAA-MM-JJ.sql.gz | sudo docker compose exec -T db sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" maths4e'
+```
+
+## Sans Docker
+
+`deploy/installer.sh` installe .NET et MySQL directement sur Ubuntu avec un service systemd. Docker reste la méthode recommandée.

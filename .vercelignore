@@ -3,3 +3,6 @@
 api/
 *.md
 deploy/
+Dockerfile
+docker-compose.yml
+.dockerignore
