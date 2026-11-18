@@ -1,5 +1,9 @@
+Imports System.IO
 Imports System.Text
 Imports System.Threading.RateLimiting
+Imports Microsoft.AspNetCore.HttpOverrides
+Imports Microsoft.AspNetCore.StaticFiles
+Imports Microsoft.Extensions.FileProviders
 Imports Dapper
 Imports Microsoft.AspNetCore.Authentication.JwtBearer
 Imports Microsoft.AspNetCore.Builder
@@ -54,7 +58,9 @@ Public Module Program
             Sub(o) o.AddDefaultPolicy(
                 Sub(p) p.WithOrigins(origines).AllowAnyHeader().AllowAnyMethod()))
 
-        ' Limite les tentatives de connexion : 20 par minute et par adresse IP
+        ' Limite les tentatives de connexion par adresse IP et par minute.
+        ' Toute une classe peut partager la même adresse publique (wifi du collège) : 60 par défaut.
+        Dim limiteConnexions = cfg.GetValue(Of Integer)("Securite:ConnexionsParMinute", 60)
         builder.Services.AddRateLimiter(
             Sub(o)
                 o.RejectionStatusCode = StatusCodes.Status429TooManyRequests
@@ -63,11 +69,40 @@ Public Module Program
                         Dim ip = If(ctx.Connection.RemoteIpAddress?.ToString(), "inconnue")
                         Return RateLimitPartition.GetFixedWindowLimiter(ip,
                             Function(cle) New FixedWindowRateLimiterOptions With {
-                                .PermitLimit = 20, .Window = TimeSpan.FromMinutes(1), .QueueLimit = 0})
+                                .PermitLimit = limiteConnexions, .Window = TimeSpan.FromMinutes(1), .QueueLimit = 0})
                     End Function)
             End Sub)
 
+        ' Derrière un relais local (Tailscale Funnel, Nginx…) : l'adresse IP réelle est dans X-Forwarded-For.
+        ' Seuls les relais sur la machine elle-même (127.0.0.1, ::1) sont crus.
+        builder.Services.Configure(Of ForwardedHeadersOptions)(
+            Sub(o) o.ForwardedHeaders = ForwardedHeaders.XForwardedFor Or ForwardedHeaders.XForwardedProto)
+
         Dim app = builder.Build()
+        app.UseForwardedHeaders()
+
+        ' Optionnel : sert aussi l'application web (index.html, prof.html…) depuis Site:Dossier,
+        ' pour avoir le site et l'API à la même adresse sur un seul serveur.
+        Dim dossierSite = cfg("Site:Dossier")
+        If Not String.IsNullOrWhiteSpace(dossierSite) Then
+            If Not Directory.Exists(dossierSite) Then
+                Throw New InvalidOperationException($"Site:Dossier introuvable : {dossierSite}")
+            End If
+            Dim fichiers As New PhysicalFileProvider(Path.GetFullPath(dossierSite))
+            Dim types As New FileExtensionContentTypeProvider()
+            types.Mappings(".webmanifest") = "application/manifest+json"
+            app.UseDefaultFiles(New DefaultFilesOptions With {.FileProvider = fichiers})
+            app.UseStaticFiles(New StaticFileOptions With {
+                .FileProvider = fichiers, .ContentTypeProvider = types,
+                .OnPrepareResponse = Sub(c)
+                                         ' Pages, config et service worker : toujours revalidés pour recevoir les mises à jour
+                                         Dim nom = c.File.Name
+                                         If nom.EndsWith(".html") OrElse nom = "sw.js" OrElse nom = "config.js" OrElse nom.EndsWith(".webmanifest") Then
+                                             c.Context.Response.Headers.CacheControl = "no-cache"
+                                         End If
+                                     End Sub})
+        End If
+
         app.UseCors()
         app.UseRateLimiter()
         app.UseAuthentication()

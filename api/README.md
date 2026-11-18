@@ -12,7 +12,7 @@ Base de données au choix : **MySQL 8** ou **SQL Server 2016+**.
   - les essais ratés, l'indice utilisé et la correction vue ne peuvent jamais être effacés par l'élève ;
   - une question n'est plus réussie si la correction a été vue avant, ou après 3 essais ratés ;
   - barème : 1 point du premier coup sans indice, ½ point sinon.
-- **Sécurité** : mots de passe et PIN hachés (BCrypt), jetons JWT, compte élève bloqué 15 min après 5 PIN faux, 20 tentatives de connexion par minute et par adresse IP, un enseignant ne voit que ses classes.
+- **Sécurité** : mots de passe et PIN hachés (BCrypt), jetons JWT, compte élève bloqué 15 min après 5 PIN faux, 60 tentatives de connexion par minute et par adresse IP (adresse réelle lue derrière un relais local), un enseignant ne voit que ses classes.
 
 ## Structure
 
@@ -79,10 +79,14 @@ Créer `MathsSuivi.Api/appsettings.Production.json` (ce fichier est ignoré par 
 | `Jwt:Cle` | clé secrète de signature des jetons (32 caractères minimum). La changer déconnecte tout le monde. |
 | `Inscription:CodeInvitation` | code demandé pour créer un compte enseignant. Vide = inscriptions fermées. |
 | `Cors:Origines` | adresses du site autorisées à appeler l'API |
+| `Site:Dossier` | (facultatif) dossier du site web à servir par l'API elle-même : site et API à la même adresse |
+| `Securite:ConnexionsParMinute` | tentatives de connexion par minute et par adresse IP (60 par défaut) |
 
 Pour générer une clé : `[Convert]::ToBase64String((1..48 | % { Get-Random -Max 256 }))` (PowerShell) ou `openssl rand -base64 48`.
 
 ### 3. Publication sur IIS (Windows Server)
+
+> Serveur Ubuntu avec Tailscale : tout est automatisé par `deploy/installer.sh`, voir [deploy/README.md](../deploy/README.md).
 
 1. Installer le **.NET 8 Hosting Bundle** sur le serveur, puis redémarrer IIS (`iisreset`).
 2. Publier :
