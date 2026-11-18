@@ -1,10 +1,11 @@
 /* Service worker de Maths 4e : rend l'application utilisable hors connexion.
-   Pour publier une nouvelle version, augmenter VERSION : les tablettes récupèrent
-   la mise à jour à la prochaine ouverture avec du réseau. */
-const VERSION = "maths4e-v3";
+   Les pages sont toujours rechargées depuis le réseau quand il y en a.
+   Augmenter VERSION seulement si les icônes ou le manifeste changent. */
+const VERSION = "maths4e-v4";
 const SHELL = [
   "./",
   "./index.html",
+  "./config.js",
   "./manifest.webmanifest",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
@@ -30,19 +31,25 @@ self.addEventListener("fetch", (e) => {
   if (req.method !== "GET") return;
   const url = new URL(req.url);
 
-  // Page de l'application : réseau d'abord (pour avoir la dernière version), cache si hors ligne
-  if (req.mode === "navigate") {
+  // Pages et config.js : réseau d'abord (pour avoir la dernière version), cache si hors ligne.
+  // Chaque page est mise en cache sous sa propre adresse (prof.html ne remplace pas l'application élève).
+  const sameOrigin = url.origin === self.location.origin;
+  if (req.mode === "navigate" || (sameOrigin && url.pathname.endsWith("/config.js"))) {
+    const cle = new URL(url.pathname.endsWith("/") ? url.pathname + "index.html" : url.pathname, url.origin).href;
     e.respondWith(
       fetch(req)
-        .then((res) => { const copy = res.clone(); caches.open(VERSION).then((c) => c.put("./index.html", copy)); return res; })
-        .catch(() => caches.match("./index.html"))
+        .then((res) => {
+          if (res.ok) { const copy = res.clone(); caches.open(VERSION).then((c) => c.put(cle, copy)); }
+          return res;
+        })
+        .catch(() => caches.match(cle).then((hit) => hit || caches.match("./index.html")))
     );
     return;
   }
 
   // Polices Google et fichiers de l'application : cache d'abord, mise à jour en arrière-plan
   const isFont = url.hostname === "fonts.googleapis.com" || url.hostname === "fonts.gstatic.com";
-  if (isFont || url.origin === self.location.origin) {
+  if (isFont || sameOrigin) {
     e.respondWith(
       caches.open(VERSION).then((c) =>
         c.match(req).then((hit) => {

@@ -19,3 +19,10 @@ L'application est une Progressive Web App : une fois hébergée en HTTPS (GitHub
 - **Android (Chrome)** : bouton « Installer » sur la page d'accueil, ou menu ⋮ → « Installer l'application ».
 
 Chaque push sur `main` est déployé automatiquement par Vercel. Les tablettes récupèrent la nouvelle version dès qu'elles ouvrent l'application avec du réseau (la page est toujours chargée depuis le réseau en priorité). Augmenter `VERSION` dans `sw.js` seulement si les icônes ou le manifeste changent.
+
+## Suivi des élèves (API VB.NET)
+
+Le dossier `api/` contient l'API de suivi (ASP.NET Core 8, VB.NET, MySQL ou SQL Server) : comptes enseignants, classes, connexion des élèves par code PIN, enregistrement des résultats avec contrôle côté serveur, bilan de classe.
+L'espace enseignant est la page `prof.html`.
+
+Installation et configuration : voir [api/README.md](api/README.md). Une fois l'API en ligne, renseigner son adresse dans `config.js`.

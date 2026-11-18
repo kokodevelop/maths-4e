@@ -1,0 +1,4 @@
+# Le site Vercel ne sert que l'application web (pages, icônes, service worker).
+# Le code de l'API VB.NET et ses scripts SQL restent dans le dépôt mais ne sont pas publiés.
+api/
+*.md

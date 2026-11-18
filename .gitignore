@@ -1,0 +1,13 @@
+# Compilation .NET
+api/**/bin/
+api/**/obj/
+api/**/publish/
+
+# Configuration locale ou de production (contient mots de passe et clé JWT)
+api/**/appsettings.Development.json
+api/**/appsettings.Production.json
+api/**/appsettings.*.local.json
+
+.vs/
+*.user
+.DS_Store

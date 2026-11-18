@@ -241,6 +241,17 @@ sup{font-size:.7em}
 .bilan-link{display:flex;justify-content:space-between;align-items:center;gap:8px;text-decoration:none;color:var(--ink);font-weight:700;border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:6px}
 .bilan-link span{font-family:var(--f-math);font-weight:400;color:var(--muted);font-variant-numeric:tabular-nums}
 .bilan-link:hover,.bilan-link.on{background:var(--accent-soft);border-color:var(--accent)}
+.compte{border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:6px;font-size:.86rem;display:flex;flex-direction:column;gap:4px}
+.compte b{font-size:.95rem}
+.compte .sync{color:var(--muted);font-size:.8rem}
+.compte .sync.ok{color:var(--ok)} .compte .sync.err{color:var(--warn)}
+.compte-cta{display:block;text-align:center;text-decoration:none;font-weight:700;background:var(--accent);color:var(--accent-ink);border-radius:8px;padding:8px 10px;margin-bottom:6px}
+.login{max-width:420px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:22px;display:flex;flex-direction:column;gap:14px}
+.login label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:.92rem}
+.login input{font:inherit;font-size:1.05rem;padding:9px 12px;border:1.5px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink)}
+.login input:focus{border-color:var(--accent);outline:none}
+.login .msg{min-height:1.4em;font-size:.92rem;color:var(--bad)}
+.login .aide{font-size:.86rem;color:var(--muted);margin:0}
 .bilan-top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px}
 .bilan-top label{font-weight:700}
 .bilan-top input{font:inherit;padding:7px 12px;border:1.5px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);width:min(300px,100%)}
@@ -265,6 +276,7 @@ sup{font-size:.7em}
 </head>
 <body>
 
+<script src="config.js"></script>
 <div class="topbar"><button class="menu-btn" id="menuBtn" aria-label="Ouvrir le sommaire">☰ Chapitres</button><b>Maths 4e</b></div>
 <div class="app">
   <aside class="side" id="side"></aside>
@@ -1050,7 +1062,7 @@ h:"La vitesse moyenne n'est pas la moyenne des vitesses : divise la distance tot
 const KEY="maths4e-progress-v1";
 let prog={};
 try{prog=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){prog={}}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(prog))}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(prog))}catch(e){}if(typeof syncPlanifier==="function")syncPlanifier()}
 function keysOf(ch){
   const k=[];
   ch.qcm.forEach((_,i)=>k.push(`${ch.id}:q:${i}`));
@@ -1140,6 +1152,7 @@ const tc=ch=>`var(${THEMES[ch.theme].c})`;
 
 function renderSide(activeId){
   let h=`<a class="brand" href="#"><b>Maths 4e</b><span>cours et exercices</span></a>
+  ${compteHTML(activeId)}
   <a class="bilan-link ${activeId==="bilan"?"on":""}" href="#bilan">Mon bilan<span>${(()=>{const a=CH.reduce((x,c)=>{const s=stat(c);x.s+=s.score;x.t+=s.total;return x},{s:0,t:0});return fmtPts(Math.round(200*a.s/a.t)/10)+" / 20"})()}</span></a><nav class="nav">`;
   for(const [tk,t] of Object.entries(THEMES)){
     const list=CH.filter(c=>c.theme===tk); if(!list.length) continue;
@@ -1166,6 +1179,11 @@ function renderHome(){
       h+=`<a class="card" href="#${c.id}"><span class="num">Chapitre ${n}</span><h3>${c.titre}</h3><p>${c.sous}</p>
       <div class="meta"><div class="bar"><i style="width:${st.pct}%"></i></div><span>${st.done}/${st.total}</span></div></a>`}
     h+=`</div></section>`;
+  }
+  if(session()){
+    h+=`<div class="reset"><span>Tes résultats sont enregistrés sur le serveur de ton professeur.</span></div>`;
+    view.innerHTML=h;
+    return;
   }
   h+=`<div class="reset" id="resetZone"><span>Ta progression est enregistrée dans ce navigateur.</span><button class="linkbtn" id="resetBtn">Effacer ma progression</button></div>`;
   view.innerHTML=h;
@@ -1432,7 +1450,8 @@ function route(){
   const [id,tab]=h.split("-");
   const ch=CH.find(c=>c.id===id);
   closeMenu();
-  if(h==="bilan"){renderSide("bilan");renderBilan()}
+  if(h==="connexion"&&API){renderSide("connexion");renderConnexion()}
+  else if(h==="bilan"){renderSide("bilan");renderBilan()}
   else if(!ch){renderSide(null);renderHome()}
   else{renderSide(ch.id);renderChapter(ch,TABS.some(t=>t[0]===tab)?tab:"cours")}
   window.scrollTo(0,0);
@@ -1443,6 +1462,126 @@ function closeMenu(){side.classList.remove("open");if(scrim){scrim.remove();scri
 $("#menuBtn").onclick=()=>side.classList.contains("open")?closeMenu():openMenu();
 window.addEventListener("hashchange",route);
 
+/* ================= Compte élève et synchronisation avec l'API ================= */
+const API=(window.MATHS4E_API||"").replace(/\/+$/,"");
+const SKEY="maths4e-session";
+let syncEtat="", syncMinuteur=null, syncEnCours=false, syncEncore=false;
+function session(){if(!API)return null;try{return JSON.parse(localStorage.getItem(SKEY))}catch(e){return null}}
+function setSession(s){try{s?localStorage.setItem(SKEY,JSON.stringify(s)):localStorage.removeItem(SKEY)}catch(e){}}
+
+async function appelApi(methode,chemin,corps,jeton){
+  const r=await fetch(API+chemin,{method:methode,headers:Object.assign({"Content-Type":"application/json"},jeton?{Authorization:"Bearer "+jeton}:{}),body:corps?JSON.stringify(corps):undefined});
+  let d=null;try{d=await r.json()}catch(e){}
+  if(!r.ok){const err=new Error((d&&d.erreur)||(r.status===429?"Trop de tentatives. Attends une minute.":"Erreur du serveur ("+r.status+")."));err.status=r.status;throw err}
+  return d;
+}
+
+// Progression locale → résultats envoyés au serveur
+function entreesLocales(){
+  const out=[];
+  for(const ch of CH){
+    ch.qcm.forEach((_,i)=>{const k=`${ch.id}:q:${i}`;if(k in prog)out.push({cle:k,reussi:prog[k]===1,essaisRates:prog[k]===1?0:1,indice:false,correctionVue:false})});
+    for(const [kind,items] of [["e",ch.exos],["p",ch.pbs]]) items.forEach((it,i)=>{
+      const ik=`${ch.id}:${kind}:${i}`;
+      it.p.forEach((_,j)=>{
+        const k=`${ik}:${j}`;
+        if(!(k in prog)&&!prog["t:"+k]&&!prog["h:"+ik]&&!prog["c:"+ik])return;
+        out.push({cle:k,reussi:prog[k]===1,essaisRates:prog["t:"+k]||0,indice:!!prog["h:"+ik],correctionVue:!!prog["c:"+ik],points:prog[k]===1?pts(k):0});
+      });
+    });
+  }
+  return out;
+}
+// Résultats du serveur → progression locale (le serveur fait foi)
+function appliquerServeur(lignes){
+  for(const r of lignes){
+    const k=r.cle,parts=k.split(":");
+    if(parts[1]==="q"){prog[k]=r.reussi?1:0;continue}
+    const ik=parts.slice(0,3).join(":");
+    delete prog[k];delete prog["pt:"+k];
+    if(r.reussi){prog[k]=1;prog["pt:"+k]=r.points}
+    if(r.essaisRates)prog["t:"+k]=r.essaisRates;else delete prog["t:"+k];
+    if(r.indice)prog["h:"+ik]=1;
+    if(r.correctionVue)prog["c:"+ik]=1;
+  }
+  try{localStorage.setItem(KEY,JSON.stringify(prog))}catch(e){}
+}
+function syncPlanifier(){
+  if(!session())return;
+  clearTimeout(syncMinuteur);
+  syncMinuteur=setTimeout(synchroniser,1200);
+}
+async function synchroniser(redessiner){
+  const s=session();if(!s)return;
+  if(syncEnCours){syncEncore=true;return}
+  syncEnCours=true;majSync("envoi");
+  try{
+    const entrees=entreesLocales();
+    const d=entrees.length?await appelApi("POST","/api/progression",{entrees},s.jeton):await appelApi("GET","/api/progression",null,s.jeton);
+    appliquerServeur(d.resultats);
+    majSync("ok");
+    if(redessiner)route();
+  }catch(e){
+    if(e.status===401){setSession(null);majSync("");route();return}
+    majSync(navigator.onLine?"err":"horsligne");
+  }finally{
+    syncEnCours=false;
+    if(syncEncore){syncEncore=false;syncPlanifier()}
+  }
+}
+const syncTexte=e=>({envoi:"Enregistrement…",ok:"✓ Résultats enregistrés",err:"Envoi impossible, nouvel essai plus tard",horsligne:"Hors connexion : envoi au retour du réseau"}[e]||"");
+const syncClasse=e=>"sync "+(e==="ok"?"ok":(e==="err"||e==="horsligne")?"err":"");
+function majSync(etat){
+  syncEtat=etat;
+  const el=document.getElementById("syncEtat");if(!el)return;
+  el.textContent=syncTexte(etat);el.className=syncClasse(etat);
+}
+function compteHTML(actif){
+  if(!API)return "";
+  const s=session();
+  if(!s)return `<a class="compte-cta" href="#connexion">Se connecter à ma classe</a>`;
+  return `<div class="compte"><b>${esc(s.prenom)} ${esc((s.nom||"").charAt(0))}.</b><span>${esc(s.classe||"")}</span><span id="syncEtat" class="${syncClasse(syncEtat)}">${syncTexte(syncEtat)}</span>
+  <span id="decoZone"><button class="linkbtn" id="decoBtn">Se déconnecter</button></span></div>`;
+}
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+document.addEventListener("click",e=>{
+  if(e.target.id==="decoBtn"){
+    $("#decoZone").innerHTML=`<span>Tes résultats restent sur le serveur.</span> <button class="dangerbtn" id="decoOui">Me déconnecter</button> <button class="linkbtn" id="decoNon">Annuler</button>`;
+  }else if(e.target.id==="decoOui"){
+    setSession(null);prog={};try{localStorage.removeItem(KEY)}catch(err){}
+    location.hash="";route();
+  }else if(e.target.id==="decoNon"){route()}
+});
+function renderConnexion(){
+  if(session()){location.hash="";return}
+  view.innerHTML=`<header class="ch-head"><span class="chip" style="--tc:var(--accent)">Ma classe</span><h1>Se connecter</h1>
+  <p class="sub">Ton professeur t'a donné un code de classe, un identifiant et un code PIN à 4 chiffres.</p></header>
+  <form class="login" id="loginForm" novalidate>
+    <label for="lgCode">Code de la classe<input id="lgCode" autocomplete="off" autocapitalize="characters" maxlength="6" placeholder="ex : K7MPQ2" required></label>
+    <label for="lgId">Identifiant<input id="lgId" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="ex : lea.m" required></label>
+    <label for="lgPin">Code PIN<input id="lgPin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="current-password" placeholder="4 chiffres" required></label>
+    <div class="msg" id="lgMsg" aria-live="polite"></div>
+    <button class="btn primary" id="lgBtn" type="submit">Se connecter</button>
+    <p class="aide">Les réponses que tu as déjà données sur cette tablette seront ajoutées à ton compte.</p>
+  </form>`;
+  $("#loginForm").onsubmit=async e=>{
+    e.preventDefault();
+    const btn=$("#lgBtn"),msg=$("#lgMsg");
+    const codeClasse=$("#lgCode").value.trim(),identifiant=$("#lgId").value.trim(),pin=$("#lgPin").value.trim();
+    if(!codeClasse||!identifiant||!/^\d{4}$/.test(pin)){msg.textContent="Remplis les trois champs. Le code PIN a 4 chiffres.";return}
+    btn.disabled=true;btn.textContent="Connexion…";msg.textContent="";
+    try{
+      const d=await appelApi("POST","/api/auth/eleve/connexion",{codeClasse,identifiant,pin});
+      setSession({jeton:d.jeton,prenom:d.prenom,nom:d.nom,classe:d.classe});
+      location.hash="";
+      await synchroniser(true);
+    }catch(err){
+      msg.textContent=err.status?err.message:"Serveur injoignable. Vérifie la connexion internet.";
+      btn.disabled=false;btn.textContent="Se connecter";
+    }
+  };
+}
+window.addEventListener("online",()=>{if(session())synchroniser()});
 /* ================= Installation sur tablette (PWA) ================= */
 let installEvt=null;
 const isStandalone=()=>window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
@@ -1465,6 +1604,7 @@ if("serviceWorker" in navigator && window.isSecureContext && location.protocol!=
 }
 
 route();
+if(session())synchroniser(true);
 </script>
 </body>
 </html>
