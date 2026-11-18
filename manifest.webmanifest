@@ -1,0 +1,19 @@
+{
+  "name": "Maths 4e — cours et exercices",
+  "short_name": "Maths 4e",
+  "description": "Cours interactifs de mathématiques pour la 4e : cours, définitions, QCM, exercices et problèmes corrigés.",
+  "lang": "fr",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f7f9fd",
+  "theme_color": "#2545c4",
+  "categories": ["education"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -1,5 +1,20 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Maths 4e</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Cours interactifs de mathématiques pour la 4e : cours, définitions, QCM, exercices et problèmes corrigés.">
+<meta name="theme-color" content="#2545c4">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Maths 4e">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&display=swap">
@@ -33,6 +48,14 @@
   color-scheme:dark;
 }
 *{box-sizing:border-box}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+.install{margin-top:18px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--surface);border:1px dashed var(--accent);border-radius:10px;padding:12px 14px;font-size:.92rem;max-width:60ch}
+.install b{color:var(--accent)}
+.install .kbd{display:inline-block;border:1px solid var(--line);border-radius:5px;padding:0 6px;background:var(--paper);font-weight:700}
+.side .install{margin:0 0 10px;font-size:.84rem;padding:8px 10px}
 body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6}
 h1,h2,h3,h4{font-family:var(--f-display);line-height:1.15;text-wrap:balance;margin:0}
 a{color:var(--accent)}
@@ -239,6 +262,8 @@ sup{font-size:.7em}
 }
 @media (prefers-reduced-motion: reduce){ *{transition:none!important} }
 </style>
+</head>
+<body>
 
 <div class="topbar"><button class="menu-btn" id="menuBtn" aria-label="Ouvrir le sommaire">☰ Chapitres</button><b>Maths 4e</b></div>
 <div class="app">
@@ -1132,6 +1157,7 @@ function renderHome(){
   <h1>Les maths de <em>4e</em>, chapitre par chapitre</h1>
   <p>Quatorze chapitres couvrent le programme. Chacun suit le même parcours : lis le cours, révise les définitions, vérifie que tu as compris, puis entraîne-toi sur des exercices et des problèmes corrigés.</p>
   <div class="steps"><span>Cours</span><span>Définitions</span><span>Compréhension</span><span>Exercices</span><span>Problèmes</span></div>
+  ${installHTML()}
   <div class="overall"><b>${pct} %</b><div class="bar" aria-label="Progression globale"><i style="width:${pct}%"></i></div><span style="color:var(--muted);font-size:.85rem">${fmtPts(all.d)} / ${all.t} points</span><a class="btn" href="#bilan">Voir mon bilan</a></div></section>`;
   for(const [tk,t] of Object.entries(THEMES)){
     const list=CH.filter(c=>c.theme===tk); if(!list.length) continue;
@@ -1416,5 +1442,29 @@ function openMenu(){side.classList.add("open");scrim=document.createElement("div
 function closeMenu(){side.classList.remove("open");if(scrim){scrim.remove();scrim=null}}
 $("#menuBtn").onclick=()=>side.classList.contains("open")?closeMenu():openMenu();
 window.addEventListener("hashchange",route);
+
+/* ================= Installation sur tablette (PWA) ================= */
+let installEvt=null;
+const isStandalone=()=>window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+const isIOS=()=>/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+function installHTML(){
+  if(isStandalone()||!("serviceWorker" in navigator)||!window.isSecureContext||location.protocol==="file:") return "";
+  if(installEvt) return `<div class="install"><span><b>Installe l'application</b> sur ta tablette pour l'ouvrir depuis l'écran d'accueil, même sans connexion.</span><button class="btn primary" id="installBtn">Installer</button></div>`;
+  if(isIOS()) return `<div class="install"><span><b>Sur iPad :</b> touche <span class="kbd">Partager ⎙</span> dans Safari, puis <span class="kbd">Sur l'écran d'accueil</span>. L'application fonctionnera aussi sans connexion.</span></div>`;
+  return `<div class="install"><span><b>Pour installer l'application :</b> ouvre le menu du navigateur <span class="kbd">⋮</span>, puis <span class="kbd">Installer l'application</span> ou <span class="kbd">Ajouter à l'écran d'accueil</span>.</span></div>`;
+}
+document.addEventListener("click",e=>{
+  if(e.target.id!=="installBtn"||!installEvt)return;
+  installEvt.prompt();
+  installEvt.userChoice.finally(()=>{installEvt=null;route()});
+});
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installEvt=e;if(!location.hash.slice(1))route()});
+window.addEventListener("appinstalled",()=>{installEvt=null;if(!location.hash.slice(1))route()});
+if("serviceWorker" in navigator && window.isSecureContext && location.protocol!=="file:"){
+  window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{})});
+}
+
 route();
 </script>
+</body>
+</html>
