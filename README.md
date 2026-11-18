@@ -6,7 +6,9 @@ Application web de cours interactifs de mathématiques pour la classe de 4e (pro
 
 ## Utilisation
 
-Ouvrir `index.html` dans un navigateur. Aucune installation ni serveur nécessaire.
+**En ligne : https://maths-4e-sigma.vercel.app** (hébergé sur Vercel).
+
+En local : ouvrir `index.html` dans un navigateur. Aucune installation ni serveur nécessaire.
 La progression est enregistrée dans le navigateur (localStorage).
 
 ## Installation sur tablette (PWA)
